@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\yazan\General_workspace\git\Decision_Table_Editor\venv"
+VIRTUAL_ENV="C:\Users\j-l19\OneDrive\Documents\McGill\Term 7 (Fall 2023)\ECSE-458\Project\Decision_Table_Editor\venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
