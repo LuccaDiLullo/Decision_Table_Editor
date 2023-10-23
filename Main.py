@@ -1,32 +1,27 @@
-from pywebio.input import input, select
-from pywebio.output import put_text
+from pywebio.input import *
+from pywebio.output import *
 
-# Sample decision table stored as a JSON object
-decision_table = {
-    "name": "My Decision Table",
-    "rules": [
-        {"condition": "Condition 1", "action": "Action 1"},
-        {"condition": "Condition 2", "action": "Action 2"},
-    ],
-}
+table = []
 
 def main():
-    while True:
-        action = select("Select an action:", ["View Decision Table", "Add Rule", "Exit"])
-        
-        if action == "View Decision Table":
-            put_text(f"Decision Table Name: {decision_table['name']}")
-            put_text("Rules:")
-            for rule in decision_table['rules']:
-                put_text(f"Condition: {rule['condition']}, Action: {rule['action']}")
-        
-        elif action == "Add Rule":
-            condition = input("Enter Condition:")
-            action = input("Enter Action:")
-            decision_table['rules'].append({"condition": condition, "action": action})
+    put_button('Create Table', onclick=create_table)
 
-        else:
-            break
+
+def create_table():
+    global table
+
+    if (table == []):
+        table_name = input("How should we name this decision table?")
+        put_text(table_name)
+        table = [['Options', 'Condition 1', 'Action 1'],
+            [1, False, put_text("test")], 
+            [2, False, put_text("test")],
+            [3, False, put_text("test")],
+        ]
+        put_table(table)
+        put_buttons(['Add condition', 'Add action'], onclick=...)
+
 
 if __name__ == '__main__':
     main()
+            
