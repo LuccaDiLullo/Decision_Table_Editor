@@ -1,0 +1,66 @@
+name: CI
+
+on: [push]
+
+jobs:
+  lint:
+    name: Lint with flake8
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Lint with flake8
+      run: flake8 project_directory  # Modify to point to your Python code directory
+
+  run-app:
+    name: Run Python Application with PyWebIO
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Run Python Application
+      run: python project_directory/main.py  # Modify to point to your Python application entry point
+
+  run-tests:
+    name: Run Gherkin Feature Files Tests with Behave
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Copy Custom Configuration File
+      run: cp custom_configuration.ini C:/Users/yazan/General_workspace/git/Decision_Table_Editor/features/
+      # Modify to point to the location of your custom configuration file
+
+    - name: Run Behave Tests with Custom Configuration
+      run: behave --config-file C:/Users/yazan/General_workspace/git/Decision_Table_Editor/features/custom_configuration.ini project_directory/features/*
+      # Modify to point to the directory containing your feature files
