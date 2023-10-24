@@ -7,7 +7,7 @@ table = []
 def main():
     put_button('Create Table', onclick=create_table)
 
-
+ 
 def create_table():
     global table
 
