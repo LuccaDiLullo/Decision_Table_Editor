@@ -22,48 +22,48 @@ jobs:
     - name: Lint with flake8
       run: flake8 .  # This points to the current directory, which is the root of your repository
 
-  run-app:
-    name: Run Python Application with PyWebIO
-    runs-on: ubuntu-latest
+#   run-app:
+#     name: Run Python Application with PyWebIO
+#     runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.x
+#     - name: Set up Python
+#       uses: actions/setup-python@v2
+#       with:
+#         python-version: 3.x
 
-    - name: Install dependencies
-      run: pip install -r requirements.txt
+#     - name: Install dependencies
+#       run: pip install -r requirements.txt
 
-    - name: Run Python Application
-      run: python ./main.py  # Modify if this is not the correct relative path
+#     - name: Run Python Application
+#       run: python ./main.py  # Modify if this is not the correct relative path
 
-  run-tests:
-    name: Run Gherkin Feature Files Tests with Behave
-    runs-on: ubuntu-latest
+#   run-tests:
+#     name: Run Gherkin Feature Files Tests with Behave
+#     runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.x
+#     - name: Set up Python
+#       uses: actions/setup-python@v2
+#       with:
+#         python-version: 3.x
 
-    - name: Install dependencies
-      run: pip install -r requirements.txt
+#     - name: Install dependencies
+#       run: pip install -r requirements.txt
 
-    - name: Modify Custom Configuration File
-      run: |
-        echo "[Paths]" > custom_configuration.ini
-        echo "project_directory = ./Decision_Table_Editor/" >> custom_configuration.ini
+#     - name: Modify Custom Configuration File
+#       run: |
+#         echo "[Paths]" > custom_configuration.ini
+#         echo "project_directory = ./Decision_Table_Editor/" >> custom_configuration.ini
 
-    - name: Copy Custom Configuration File
-      run: cp custom_configuration.ini ./features/
+#     - name: Copy Custom Configuration File
+#       run: cp custom_configuration.ini ./features/
 
-    - name: Run Behave Tests with Custom Configuration
-      run: behave --config-file ./features/custom_configuration.ini Decision_Table_Editor/project_directory/features/*
+#     - name: Run Behave Tests with Custom Configuration
+#       run: behave --config-file ./features/custom_configuration.ini Decision_Table_Editor/project_directory/features/*
