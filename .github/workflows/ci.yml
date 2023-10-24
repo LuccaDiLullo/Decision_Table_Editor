@@ -39,7 +39,7 @@ jobs:
       run: pip install -r requirements.txt
 
     - name: Run Python Application
-      run: python project_directory/main.py  # Modify if this is not the correct relative path
+      run: python Decision_Table_Editor/main.py  # Modify if this is not the correct relative path
 
   run-tests:
     name: Run Gherkin Feature Files Tests with Behave
