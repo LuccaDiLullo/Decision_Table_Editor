@@ -39,7 +39,7 @@ jobs:
       run: pip install -r requirements.txt
 
     - name: Run Python Application
-      run: python Decision_Table_Editor/main.py  # Modify if this is not the correct relative path
+      run: python ./main.py  # Modify if this is not the correct relative path
 
   run-tests:
     name: Run Gherkin Feature Files Tests with Behave
@@ -63,7 +63,7 @@ jobs:
         echo "project_directory = ./Decision_Table_Editor/" >> custom_configuration.ini
 
     - name: Copy Custom Configuration File
-      run: cp custom_configuration.ini Decision_Table_Editor/features/
+      run: cp custom_configuration.ini ./features/
 
     - name: Run Behave Tests with Custom Configuration
-      run: behave --config-file Decision_Table_Editor/features/custom_configuration.ini Decision_Table_Editor/project_directory/features/*
+      run: behave --config-file ./features/custom_configuration.ini Decision_Table_Editor/project_directory/features/*
