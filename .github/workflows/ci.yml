@@ -20,7 +20,7 @@ jobs:
       run: pip install -r requirements.txt
 
     - name: Lint with flake8
-      run: flake8 project_directory  # Modify if "project_directory" is not the correct relative path 
+      run: flake8 .  # This points to the current directory, which is the root of your repository
 
   run-app:
     name: Run Python Application with PyWebIO
