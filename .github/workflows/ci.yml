@@ -20,7 +20,7 @@ jobs:
       run: pip install -r requirements.txt
 
     - name: Lint with flake8
-      run: flake8 project_directory  # Modify to point to your Python code directory
+      run: flake8 project_directory  # Modify if "project_directory" is not the correct relative path 
 
   run-app:
     name: Run Python Application with PyWebIO
@@ -39,7 +39,7 @@ jobs:
       run: pip install -r requirements.txt
 
     - name: Run Python Application
-      run: python project_directory/main.py  # Modify to point to your Python application entry point
+      run: python project_directory/main.py  # Modify if this is not the correct relative path
 
   run-tests:
     name: Run Gherkin Feature Files Tests with Behave
@@ -57,10 +57,13 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
 
+    - name: Modify Custom Configuration File
+      run: |
+        echo "[Paths]" > custom_configuration.ini
+        echo "project_directory = ./Decision_Table_Editor/" >> custom_configuration.ini
+
     - name: Copy Custom Configuration File
-      run: cp custom_configuration.ini C:/Users/yazan/General_workspace/git/Decision_Table_Editor/features/
-      # Modify to point to the location of your custom configuration file
+      run: cp custom_configuration.ini Decision_Table_Editor/features/
 
     - name: Run Behave Tests with Custom Configuration
-      run: behave --config-file C:/Users/yazan/General_workspace/git/Decision_Table_Editor/features/custom_configuration.ini project_directory/features/*
-      # Modify to point to the directory containing your feature files
+      run: behave --config-file Decision_Table_Editor/features/custom_configuration.ini Decision_Table_Editor/project_directory/features/*
