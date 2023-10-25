@@ -39,7 +39,7 @@ def add_condition():
     table_data["headers"].insert(position, condition_name)
 
     # Generate new table combinations
-    conditions_combinations = generate_combinations(table_data["num_conditions"])
+    conditions_combinations=generate_combinations(table_data["num_conditions"])
     new_table_data = copy.deepcopy(conditions_combinations)
     for idx, combo in enumerate(conditions_combinations):
         new_table_data[idx].insert(0, idx + 1)
@@ -82,7 +82,7 @@ def add_rule():
                 toggle_action(row_index, action_index)
 
     rule_display = (f"Rule: if {inputs['rule_condition']} = "
-                    f"{inputs['rule_boolean']}, then {inputs['rule_action']} = "
+                    f"{inputs['rule_boolean']}, then {inputs['rule_action']}="
                     f"{inputs['rule_decision']}")
     put_text(rule_display)
 
