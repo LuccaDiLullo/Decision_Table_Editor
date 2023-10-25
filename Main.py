@@ -41,7 +41,7 @@ def add_condition():
     # Generate new table combinations
     conditions_comb = generate_combinations(table_data["num_conditions"])
     new_table_data = copy.deepcopy(conditions_comb)
-    for idx, combo in enumerate(conditions_comb:
+    for idx, combo in enumerate(conditions_comb):
         new_table_data[idx].insert(0, idx + 1)
         new_table_data[idx].extend([False] * table_data["num_actions"])
 
