@@ -1,6 +1,6 @@
 import copy
 import functools
-from pywebio.input import input, select, input_group, textarea
+from pywebio.input import input, select, input_group, NUMBER
 from pywebio.output import clear, put_button, put_text, put_table
 
 conditions = []
@@ -25,7 +25,7 @@ def main():
 # Creates and display the initial decision table
 def create_table():
     # Prompt user to enter a table name
-    table_data["table_name"] = input("Name this decision table?", validate=naming)
+    table_data["table_name"] = input("Name this decision table", validate=naming)
     
     # Updates the table visual on display
     display_table()
@@ -34,6 +34,9 @@ def naming(name):
     if len(name) < 1 or len(name) > 32:
         return "Name must be between 1 than 32 characters"
 
+def integer(number):
+    if not isinstance(number, int) or number > 500 or number < -500:
+        return "Number must be an integer in the range -500 to 500"
 
 # Adds a new condition variable to the table
 def add_condition():
@@ -45,7 +48,7 @@ def add_condition():
 
         input("Enter a name for the condition:", name="condition_name", validate=naming),
         select("Slect the type of variable", options=["True/False", "Number"], name="condition_type"),    # select a conditions
-
+        
     ])
 
     # Update values in the table data object and conditions list
@@ -57,7 +60,7 @@ def add_condition():
     if table_data["num_rules"] != 0:
         for _ in range(table_data["num_rules"]):
             if inputs["condition_type"] == "True/False":
-                table_data["data"][postition].append(False)
+                table_data["data"][postition].append("False")
             else:
                 table_data["data"][postition].append(0)
             
@@ -89,7 +92,7 @@ def add_action():
     if table_data["num_rules"] != 0:
         for _ in range(table_data["num_rules"]):
             if inputs["action_type"] == "True/False":
-                table_data["data"][postition].append(False)
+                table_data["data"][postition].append("False")
             else:
                 table_data["data"][postition].append(0)
 
@@ -119,14 +122,14 @@ def add_rule():
             # check the type of condition and fill default
             for condition in conditions:
                 if condition[0] == row[1] and condition[1] == "True/False":
-                    row.append(False)
+                    row.append("False")
                 elif condition[0] == row[1] and condition[1] == "Number":
                     row.append(0)
             
             # check the type of actiona and fill default
             for action in actions:
                 if action[0] == row[1] and action[1] == "True/False":
-                    row.append(False)
+                    row.append("False")
                 elif action[0] == row[1] and action[1] == "Number":
                     row.append(0)
         
@@ -184,8 +187,10 @@ def display_table():
     # Go through the table data, and adjust the values as needed to display the right UI elements
     for i in range(len(table_data["data"])):
         for j in range(len(table_data["data"][i])):
-            if table_array[i][j] is True or table_array[i][j] is False:
+            if table_array[i][j] == "True" or table_array[i][j] == "False" or table_array[i][j] == "*":
                 table_array[i][j] = put_button(table_array[i][j], onclick= functools.partial(toggle_boolean, i, j), color = get_color(table_array[i][j]))
+            if isinstance(table_array[i][j], int):
+                table_array[i][j] = put_button(table_array[i][j], onclick= functools.partial(toggle_integer, i, j), color='light')
 
     # Update the UI
     clear()
@@ -200,18 +205,27 @@ def display_table():
 
 # Toggles the value in an action column, at the specific row&column from where the user interaction came from
 def toggle_boolean(row, column):
-    if (table_data["data"][row][column]):
-        table_data["data"][row][column] = False
-    else : 
-        table_data["data"][row][column] = True
-    
-    # Updates the table visual on display
+    match table_data["data"][row][column]:
+        case "False":
+            table_data["data"][row][column] = "True"
+        case "True":
+            table_data["data"][row][column] = "*"
+        case "*":
+            table_data["data"][row][column] = "False"
+        
+    display_table()
+
+def toggle_integer(row, column):
+    updated_integer = input("Change the value", type=NUMBER, validate=integer)
+    table_data["data"][row][column] = updated_integer
+
     display_table()
 
 # Returns the appropriate color value based on whether a value is true or false
 def get_color(value):
-    if (value): return 'success'
-    else: return 'danger'
+    if value == "True": return 'success'
+    elif value == "False": return 'danger'
+    else: return 'warning'
 
 # Generates all 2^n possible combinations of n boolean variables
 def generate_combinations(n):
