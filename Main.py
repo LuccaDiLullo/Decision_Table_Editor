@@ -1,10 +1,15 @@
 import copy
 import functools
-from pywebio.input import input, select, input_group, NUMBER
+from pywebio.input import input, select, input_group, NUMBER, input_update, FLOAT
 from pywebio.output import clear, put_button, put_text, put_table
 
 conditions = []
 actions = []
+types2attributes = {
+    'Integer': ['Integer'],
+    'Range': ['Inclusive', 'Exclusive'],
+    'Decimal': ["1", "2", "3"]
+}
 
 # Python object used for storing all the data about the current table
 table_data = {
@@ -34,38 +39,52 @@ def naming(name):
     if len(name) < 1 or len(name) > 32:
         return "Name must be between 1 than 32 characters"
 
-def integer(number):
-    if not isinstance(number, int) or number > 500 or number < -500:
-        return "Number must be an integer in the range -500 to 500"
-
 # Adds a new condition variable to the table
 def add_condition():
     global table_data   # Uses the global value of the table data
     global conditions   # Uses the global value of the conditions list
+    global types2attributes # Uses the global value for number types
 
     # Prompt user to enter a condition name
     inputs = input_group("Add Condition", [
-
         input("Enter a name for the condition:", name="condition_name", validate=naming),
         select("Slect the type of variable", options=["True/False", "Number"], name="condition_type"),    # select a conditions
-        
     ])
+
+    if inputs["condition_type"] == "Number":
+        number_types = list(types2attributes.keys())
+        inputs_types = input_group('Select a type:', [
+            select('Number type', options=number_types, name='type', onchange=lambda c: input_update('attributes', options=types2attributes[c])),
+            select('Attributes', options=types2attributes[number_types[0]], name='attributes'),
+        ])
 
     # Update values in the table data object and conditions list
     table_data["num_conditions"] += 1
-    postition = table_data["num_conditions"]
-    table_data["data"].insert(postition, [" ", inputs["condition_name"]])
+    position = table_data["num_conditions"]
+    table_data["data"].insert(position, [" ", inputs["condition_name"]])
 
     # Update rules
     if table_data["num_rules"] != 0:
         for _ in range(table_data["num_rules"]):
             if inputs["condition_type"] == "True/False":
-                table_data["data"][postition].append("False")
+                table_data["data"][position].append("False")
             else:
-                table_data["data"][postition].append(0)
+                match inputs_types["type"]:
+                    case "Integer": table_data["data"][position].append(0)
+                    case "Range": 
+                        if inputs_types['attributes'] == "Inclusive":
+                            table_data["data"][position].append('[0,0]')
+                        else: table_data["data"][position].append(']0,0[')
+                    case "Decimal": 
+                        match inputs_types['attributes']:
+                            case "1": table_data["data"][position].append('0.0')
+                            case "2": table_data["data"][position].append('0.00')
+                            case "3": table_data["data"][position].append('0.000')
             
     # Add this condition to the global conditions list
-    conditions.append([inputs["condition_name"], inputs["condition_type"]])
+    if inputs["condition_type"] == "True/False":
+        conditions.append([inputs["condition_name"], inputs["condition_type"]])
+    else: conditions.append([inputs["condition_name"], inputs_types["attributes"]])
     
     # Updates the table visual on display
     display_table()
@@ -74,30 +93,48 @@ def add_condition():
 def add_action():
     global table_data   # Uses the global value of the table data
     global actions      # Uses the global value of the actions list
+    global types2attributes # Uses the global value for number types
 
     # Prompt user to enter a condition name
     inputs = input_group("Add Action", [
-
         input("Enter a name for the action:", name="action_name", validate=naming),
         select("Slect the type of variable", options=["True/False", "Number"], name="action_type"),    # select a conditions
-
     ])
+
+    if inputs["action_type"] == "Number":
+        number_types = list(types2attributes.keys())
+        inputs_types = input_group('Select a type:', [
+            select('Number type', options=number_types, name='type', onchange=lambda c: input_update('attributes', options=types2attributes[c])),
+            select('Attributes', options=types2attributes[number_types[0]], name='attributes'),
+        ])
 
     # Update values in the table data object and conditions list
     table_data["num_actions"] += 1
-    postition = table_data["num_conditions"] + table_data["num_actions"] + 1
-    table_data["data"].insert(postition, [" ", inputs["action_name"]])
+    position = table_data["num_conditions"] + table_data["num_actions"] + 1
+    table_data["data"].insert(position, [" ", inputs["action_name"]])
 
     # Update rules
     if table_data["num_rules"] != 0:
         for _ in range(table_data["num_rules"]):
             if inputs["action_type"] == "True/False":
-                table_data["data"][postition].append("False")
+                table_data["data"][position].append("False")
             else:
-                table_data["data"][postition].append(0)
+                match inputs_types['type']:
+                    case "Integer": table_data["data"][position].append(0)
+                    case "Range": 
+                        if inputs_types["attributes"] == "Inclusive":
+                            table_data["data"][position].append('[0,0]')
+                        else: table_data["data"][position].append(']0,0[')
+                    case "Decimal": 
+                        match inputs_types['attributes']:
+                            case "1": table_data["data"][position].append('0.0')
+                            case "2": table_data["data"][position].append('0.00')
+                            case "3": table_data["data"][position].append('0.000')
 
     # Add this condition to the global actions list
-    actions.append([inputs["action_name"], inputs["action_type"]])
+    if inputs["action_type"] == "True/False":
+        actions.append([inputs["action_name"], inputs["action_type"]])
+    else: actions.append([inputs["action_name"], inputs_types["attributes"]])
     
     # Updates the table visual on display
     display_table()
@@ -123,15 +160,35 @@ def add_rule():
             for condition in conditions:
                 if condition[0] == row[1] and condition[1] == "True/False":
                     row.append("False")
-                elif condition[0] == row[1] and condition[1] == "Number":
+                elif condition[0] == row[1] and condition[1] == "Integer":
                     row.append(0)
-            
+                elif condition[0] == row[1] and condition[1] == "Inclusive":
+                    row.append('[0,0]')
+                elif condition[0] == row[1] and condition[1] == "Exclusive":
+                    row.append(']0,0[')
+                elif condition[0] == row[1] and condition[1] == "1":
+                    row.append('0.0')
+                elif condition[0] == row[1] and condition[1] == "2":
+                    row.append('0.00')
+                elif condition[0] == row[1] and condition[1] == "3":
+                    row.append('0.000')
+
             # check the type of actiona and fill default
             for action in actions:
                 if action[0] == row[1] and action[1] == "True/False":
                     row.append("False")
-                elif action[0] == row[1] and action[1] == "Number":
+                elif action[0] == row[1] and action[1] == "Integer":
                     row.append(0)
+                elif action[0] == row[1] and action[1] == "Inclusive":
+                    row.append("[0,0]")
+                elif action[0] == row[1] and action[1] == "Exclusive":
+                    row.append("]0,0[")
+                elif action[0] == row[1] and action[1] == "1":
+                    row.append('0.0')
+                elif action[0] == row[1] and action[1] == "2":
+                    row.append('0.00')
+                elif action[0] == row[1] and action[1] == "3":
+                    row.append('0.000')
         
         # Updates the table visual on display
         display_table()
@@ -189,8 +246,14 @@ def display_table():
         for j in range(len(table_data["data"][i])):
             if table_array[i][j] == "True" or table_array[i][j] == "False" or table_array[i][j] == "*":
                 table_array[i][j] = put_button(table_array[i][j], onclick= functools.partial(toggle_boolean, i, j), color = get_color(table_array[i][j]))
-            if isinstance(table_array[i][j], int):
+            elif isinstance(table_array[i][j], int):
                 table_array[i][j] = put_button(table_array[i][j], onclick= functools.partial(toggle_integer, i, j), color='light')
+            elif isinstance(table_array[i][j], str) and table_array[i][j][0] == "[":
+                table_array[i][j] = put_button(table_array[i][j], onclick= functools.partial(toggle_range, i, j, "["), color='light')
+            elif isinstance(table_array[i][j], str) and table_array[i][j][0] == "]":
+                table_array[i][j] = put_button(table_array[i][j], onclick= functools.partial(toggle_range, i, j, "]"), color='light')
+            elif isinstance(table_array[i][j], str) and '.' in table_array[i][j]:
+                table_array[i][j] = put_button(table_array[i][j], onclick= functools.partial(toggle_decimal, i, j), color='light')
 
     # Update the UI
     clear()
@@ -203,7 +266,7 @@ def display_table():
     # put_button('Add Logical Expression', onclick=logic_expression)
     
 
-# Toggles the value in an action column, at the specific row&column from where the user interaction came from
+# Toggles the value in the table from where the user interaction came from for booleans
 def toggle_boolean(row, column):
     match table_data["data"][row][column]:
         case "False":
@@ -215,10 +278,47 @@ def toggle_boolean(row, column):
         
     display_table()
 
-def toggle_integer(row, column):
-    updated_integer = input("Change the value", type=NUMBER, validate=integer)
-    table_data["data"][row][column] = updated_integer
+# Toggles the value in the table from where the user interaction came from for integers
+def toggle_integer(row, column, ):
+    updated_integer = input("Change the value", type=FLOAT)
+    table_data["data"][row][column] = int(updated_integer)
 
+    display_table()
+
+# Toggles the value in the table from where the user interaction came from for range of values
+def toggle_range(row, column, bracket):
+    updates = input_group('Update range values', [
+        input("Change the first value of the range", type=FLOAT, name="updated_range_a"),
+        input("Change the second value of the range", type=FLOAT, name="updated_range_b")
+    ])
+    if updates["updated_range_a"] > updates["updated_range_b"]: return "the second value must be greater than the first value"
+    if bracket == "[":
+        table_data["data"][row][column] = "["+str(int(updates["updated_range_a"]))+","+str(int(updates["updated_range_b"]))+"]"
+    else: table_data["data"][row][column] = "]"+str(int(updates["updated_range_a"]))+","+str(int(updates["updated_range_b"]))+"["
+
+    display_table()
+
+# Toggles the value in the table from where the user interaction came from for decimal values
+def toggle_decimal(row, column):
+    global conditions
+    global actions
+    name = table_data["data"][row][1]
+    decimal_num = "0"
+    for condition in conditions:
+        if condition[0] == name: 
+            decimal_num = condition[1]
+            break
+    for action in actions:
+        if action[0] == name:
+            decimal_num = action[1]
+            break
+    
+    updated_integer = input("Change the value", type=FLOAT)
+    match decimal_num:
+        case "1": table_data["data"][row][column] = str("%.1f" % updated_integer)
+        case "2": table_data["data"][row][column] = str("%.2f" % updated_integer)
+        case "3": table_data["data"][row][column] = str("%.3f" % updated_integer)
+    
     display_table()
 
 # Returns the appropriate color value based on whether a value is true or false
