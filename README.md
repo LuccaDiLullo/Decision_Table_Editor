@@ -1,6 +1,6 @@
 # Decision Table Editor 
 
-**Description:** The project focuses on developing a "Decision Table Editor" - a vital tool that assists users in representing and analyzing multiple conditions in a structured format. This allows for clear visual representation of complex decision-making scenarios, ensuring that all possible conditions and their outcomes are meticulously covered. Built using Python, the project emphasizes maintaining code quality, robustness, and user experience. Integrated tools such as Flake8 for linting ensure code adheres to best practices, while Behave enables Gherkin-style testing to verify that the application's functionality aligns with its intended behavior.
+**Description:** The project focuses on developing a "Decision Table Editor" - a tool that assists users in representing and analyzing multiple conditions in a structured format. This allows for clear visual representation of complex decision-making scenarios, enabling all possible conditions and their outcomes to be meticulously covered. Built using Python, the project emphasizes maintaining code quality, robustness, and ease of use. 
 
 ## Table of Contents
 - [Getting Started](#getting-started)
@@ -23,7 +23,6 @@ Before you start, make sure you have:
     ```
 
 ### Tools and Their Purpose
-- **Flake8**: A linting tool to enforce code standards and catch potential errors. [Learn more about Flake8](https://flake8.pycqa.org/en/latest/).
 - **Behave**: A tool for writing tests in the Gherkin language to ensure functionality aligns with intended behavior. [Learn more about Behave](https://behave.readthedocs.io/en/stable/).
 - **PyWebIO**: Used for building web applications with Python. [Learn more about PyWebIO](https://pywebio.readthedocs.io/en/latest/).
 
@@ -60,10 +59,6 @@ Before you start, make sure you have:
     ```
 
 ## Usage
-1. **Running the Linter with Flake8:**
-   ```bash
-   flake8 .
-
-2. **Running the Application:**
+1. **Running the Application:**
    ```bash
    python ./main.py
