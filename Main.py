@@ -1,3 +1,4 @@
+import json
 import copy
 import functools
 from pywebio.input import input, select, input_group, NUMBER, input_update, FLOAT
@@ -32,6 +33,7 @@ def create_table():
     table_data["table_name"] = input("Name this decision table", validate=naming)
     
     # Updates the table visual on display
+    save(table_data)
     display_table()
 
 def naming(name):
@@ -85,6 +87,7 @@ def add_condition():
     else: conditions.append([inputs["condition_name"], inputs_types["attributes"]])
     
     # Updates the table visual on display
+    save(table_data)
     display_table()
 
 # Adds a new action row to the table
@@ -135,6 +138,7 @@ def add_action():
     else: actions.append([inputs["action_name"], inputs_types["attributes"]])
     
     # Updates the table visual on display
+    save(table_data)
     display_table()
 
 # Adds a new rule column to the table
@@ -189,6 +193,7 @@ def add_rule():
                     row.append('0.000')
         
         # Updates the table visual on display
+        save(table_data)
         display_table()
 
 # Creates a Logical Expression
@@ -268,6 +273,7 @@ def toggle_boolean(row, column):
         case "*":
             table_data["data"][row][column] = "False"
         
+    save(table_data)
     display_table()
 
 # Toggles the value in the table from where the user interaction came from for integers
@@ -275,6 +281,7 @@ def toggle_integer(row, column, ):
     updated_integer = input("Change the value", type=FLOAT)
     table_data["data"][row][column] = int(updated_integer)
 
+    save(table_data)
     display_table()
 
 # Toggles the value in the table from where the user interaction came from for range of values
@@ -288,6 +295,7 @@ def toggle_range(row, column, bracket):
         table_data["data"][row][column] = "["+str(int(updates["updated_range_a"]))+","+str(int(updates["updated_range_b"]))+"]"
     else: table_data["data"][row][column] = "]"+str(int(updates["updated_range_a"]))+","+str(int(updates["updated_range_b"]))+"["
 
+    save(table_data)
     display_table()
 
 # Toggles the value in the table from where the user interaction came from for decimal values
@@ -311,6 +319,7 @@ def toggle_decimal(row, column):
         case "2": table_data["data"][row][column] = str("%.2f" % updated_integer)
         case "3": table_data["data"][row][column] = str("%.3f" % updated_integer)
     
+    save(table_data)
     display_table()
 
 def get_color(value):
@@ -318,17 +327,10 @@ def get_color(value):
     elif value == "False": return 'danger'
     else: return 'warning'
 
-def generate_combinations(n):
-    """Generate 2^n boolean combinations."""
-    if n == 0:
-        return [[]]
-    smaller_combinations = generate_combinations(n - 1)
-    combinations = []
-    for combination in smaller_combinations:
-        combinations.append(combination + [True])
-        combinations.append(combination + [False])
-    return combinations
-
+def save(table_data):
+    json_object = json.dumps(table_data, indent=4)
+    with open(table_data["table_name"]+".json", "w") as outfile:
+        outfile.write(json_object)
 
 if __name__ == '__main__':
     main()
