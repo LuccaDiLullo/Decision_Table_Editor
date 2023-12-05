@@ -4,15 +4,11 @@ import functools
 from pywebio.input import input, select, input_group, NUMBER, input_update, FLOAT, file_upload
 from pywebio.output import clear, put_button, put_text, put_table
 
-conditions = []
-actions = []
 number2attributes = {
     'Integer': ['Integer'],
     'Range': ['Inclusive', 'Exclusive'],
     'Decimal': ["1", "2", "3"]
 }
-
-custom2attributes = {}
 
 # Initialize default table structure
 table_data = {
@@ -21,7 +17,7 @@ table_data = {
     "conditions": [],
     "num_actions": 0,
     "actions": [],
-    "custom_types": [],
+    "custom": {},
     "num_rules": 0,
     "headers": ["Rules", " "],
     "data": [["Conditions", " "], ["Actions", " "]]
@@ -49,6 +45,7 @@ def open_table():
     # Prompt user to enter a table name
     opened_file = file_upload("Select .json file to open", accept=".json")
     table_data = json.loads(opened_file['content'])
+    
     print(table_data)
     # Updates the table visual on display
     display_table()
@@ -59,9 +56,7 @@ def naming(name):
 
 def add_condition():
     global table_data   # Uses the global value of the table data
-    global conditions   # Uses the global value of the conditions list
     global number2attributes # Uses the global value for number types
-    global custom2attributes # Uses the global value for custom types
 
     # Prompt user to enter a condition name
     inputs = input_group("Add Condition", [
@@ -77,10 +72,10 @@ def add_condition():
         ])
 
     if inputs["condition_type"] == "Custom":
-        if custom2attributes == {}:
+        if table_data['custom'] == {}:
             put_text("Create a custom type first")
         else:
-            custom_types = list(custom2attributes.keys())
+            custom_types = list(table_data['custom'].keys())
             cus_inputs_types = input_group('Select a type:', [
                 select('Custom type', options=custom_types, name='type'),
             ])
@@ -108,17 +103,14 @@ def add_condition():
                             case "2": table_data["data"][position].append('0.00')
                             case "3": table_data["data"][position].append('0.000')
             elif inputs["condition_type"] == "Custom":
-                table_data["data"][position].append(custom2attributes[cus_inputs_types["type"]][0])
+                table_data["data"][position].append(table_data['custom'][cus_inputs_types["type"]][0])
             
     # Add this condition to the global conditions list
     if inputs["condition_type"] == "True/False":
-        conditions.append([inputs["condition_name"], inputs["condition_type"]])
         table_data['conditions'].append([inputs["condition_name"], inputs["condition_type"]])
     elif inputs["condition_type"] == "Number": 
-        conditions.append([inputs["condition_name"], num_inputs_types["attributes"]])
         table_data['conditions'].append([inputs["condition_name"], num_inputs_types["attributes"]])
     elif inputs["condition_type"] == "Custom":
-        conditions.append([inputs["condition_name"], cus_inputs_types["type"]])
         table_data['conditions'].append([inputs["condition_name"], cus_inputs_types["type"]])
     
     # Updates the table visual on display
@@ -128,9 +120,7 @@ def add_condition():
 # Adds a new action row to the table
 def add_action():
     global table_data   # Uses the global value of the table data
-    global actions      # Uses the global value of the actions list
     global number2attributes # Uses the global value for number types
-    global custom2attributes # Uses the global value for custom types
 
     # Prompt user to enter a condition name
     inputs = input_group("Add Action", [
@@ -146,10 +136,10 @@ def add_action():
         ])
     
     if inputs["action_type"] == "Custom":
-        if custom2attributes == {}:
+        if table_data['custom'] == {}:
             put_text("Create a custom type first")
         else:
-            custom_types = list(custom2attributes.keys())
+            custom_types = list(table_data['custom'].keys())
             cus_inputs_types = input_group('Select a type:', [
                 select('Custom type', options=custom_types, name='type'),
             ])
@@ -177,17 +167,14 @@ def add_action():
                             case "2": table_data["data"][position].append('0.00')
                             case "3": table_data["data"][position].append('0.000')
             elif inputs["action_type"] == "Custom":
-                table_data["data"][position].append(custom2attributes[cus_inputs_types["type"]][0])
+                table_data["data"][position].append(table_data['custom'][cus_inputs_types["type"]][0])
 
     # Add this condition to the global actions list
     if inputs["action_type"] == "True/False":
-        actions.append([inputs["action_name"], inputs["action_type"]])
         table_data['actions'].append([inputs["action_name"], inputs["action_type"]])
     elif inputs["action_type"] == "Number":
-        actions.append([inputs["action_name"], inputs_types["attributes"]])
         table_data['actions'].append([inputs["action_name"], inputs_types["attributes"]])
     elif inputs["action_type"] == "Custom":
-        actions.append([inputs["action_name"], cus_inputs_types["type"]])
         table_data['actions'].append([inputs["action_name"], cus_inputs_types["type"]])
     
     # Updates the table visual on display
@@ -197,9 +184,6 @@ def add_action():
 # Adds a new rule column to the table
 def add_rule():
     global table_data           # Uses the global value of the table data
-    global conditions           # Uses the global value of the conditions list
-    global actions              # Uses the global value of the actions list
-    global custom2attributes    # Uses the global value for custom types
 
     if table_data['actions'] == [] and table_data['conditions'] == []:
         put_text("Create a condition or an action first!")
@@ -227,10 +211,10 @@ def add_rule():
                     row.append('0.00')
                 elif condition[0] == row[1] and condition[1] == "3":
                     row.append('0.000')
-                elif condition[0] == row[1] and condition[1] in list(custom2attributes.keys()):
-                    for custom_type in list(custom2attributes.keys()):
+                elif condition[0] == row[1] and condition[1] in list(table_data['custom'].keys()):
+                    for custom_type in list(table_data['custom'].keys()):
                         if custom_type == condition[1]: 
-                            row.append(custom2attributes[custom_type][0])
+                            row.append(table_data['custom'][custom_type][0])
 
             # check the type of actiona and fill default
             for action in table_data['actions']:
@@ -248,24 +232,23 @@ def add_rule():
                     row.append('0.00')
                 elif action[0] == row[1] and action[1] == "3":
                     row.append('0.000')
-                elif action[0] == row[1] and action[1] in list(custom2attributes.keys()):
-                    for custom_type in list(custom2attributes.keys()):
+                elif action[0] == row[1] and action[1] in list(table_data['custom'].keys()):
+                    for custom_type in list(table_data['custom'].keys()):
                         if custom_type == action[1]: 
-                            row.append(custom2attributes[custom_type][0])
+                            row.append(table_data['custom'][custom_type][0])
         
         # Updates the table visual on display
         save(table_data)
         display_table()
 
 def add_custom_type():
-    global custom2attributes
 
     inputs = input_group("Add a custom type", [
         input("Enter a name for the custom type:", name="custom_name", validate=naming),
         input("Input type attributes seperated by commas, (a,b,c):", name="custom_type", validate=naming)
     ])
     custom_list = inputs["custom_type"].split(",")
-    custom2attributes[inputs["custom_name"]] = custom_list
+    table_data['custom'][inputs["custom_name"]] = custom_list
 
     
 
@@ -403,22 +386,19 @@ def toggle_decimal(row, column):
     display_table()
 
 def toggle_custom(row, column):
-    global conditions
-    global actions
-    global custom2attributes
 
     name = table_data["data"][row][1]
     attr = "hi"
-    for condition in conditions:
+    for condition in table_data['conditions']:
         if condition[0] == name:
             attr = condition[1]
             break
-    for action in actions:
+    for action in table_data['actions']:
         if action[0] == name:
             attr = action[1]
             break
     
-    var_list = custom2attributes[attr]
+    var_list = table_data['custom'][attr]
     
     updated_type = select("Select the value", options=var_list)    # select a conditions
     table_data["data"][row][column] = updated_type
