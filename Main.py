@@ -205,6 +205,35 @@ def add_rule():
         save(table_data)
         display_table()
 
+def delete_condition(row_index):
+    global table_data
+    deleted_condition_name = table_data["data"][row_index][1]
+
+    # Remove the condition from the conditions list
+    table_data['conditions'] = [condition for condition in table_data['conditions'] if condition[0] != deleted_condition_name]
+
+    # Remove the condition from the table data
+    del table_data["data"][row_index]
+
+    # Update the UI
+    save(table_data)
+    display_table()
+
+def delete_action(row_index):
+    global table_data
+    deleted_action_name = table_data["data"][row_index][1]
+
+    # Remove the action from the actions list
+    table_data['actions'] = [action for action in table_data['actions'] if action[0] != deleted_action_name]
+
+    # Remove the action from the table data
+    del table_data["data"][row_index]
+
+    # Update the UI
+    save(table_data)
+    display_table()
+
+
 # Creates a Logical Expression
 def logic_expression():
 
@@ -246,6 +275,13 @@ def display_table():
 
     # table_array is used to pass to the data library put_table function
     table_array = copy.deepcopy(table_data["data"])
+
+    for i in range(len(table_data["data"])):
+        if i == 0 or i == table_data["num_conditions"]+1:
+            continue
+
+        delete_button = put_button('Delete', onclick=functools.partial(delete_condition, i), small=True, color='info')
+        table_array[i].append(delete_button)
 
     # Convert boolean values to buttons
     for i in range(len(table_data["data"])):

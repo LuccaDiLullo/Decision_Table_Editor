@@ -1,0 +1,56 @@
+{
+    "table_name": "b",
+    "num_conditions": 2,
+    "conditions": [
+        [
+            "c",
+            "True/False"
+        ],
+        [
+            "c2",
+            "True/False"
+        ]
+    ],
+    "num_actions": 2,
+    "actions": [
+        [
+            "a1",
+            "True/False"
+        ],
+        [
+            "a2",
+            "True/False"
+        ]
+    ],
+    "num_rules": 0,
+    "headers": [
+        "Rules",
+        " "
+    ],
+    "data": [
+        [
+            "Conditions",
+            " "
+        ],
+        [
+            " ",
+            "c"
+        ],
+        [
+            " ",
+            "c2"
+        ],
+        [
+            "Actions",
+            " "
+        ],
+        [
+            " ",
+            "a1"
+        ],
+        [
+            " ",
+            "a2"
+        ]
+    ]
+}

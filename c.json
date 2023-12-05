@@ -1,0 +1,39 @@
+{
+    "table_name": "c",
+    "num_conditions": 2,
+    "conditions": [
+        [
+            "c",
+            "True/False"
+        ],
+        [
+            "c2",
+            "True/False"
+        ]
+    ],
+    "num_actions": 0,
+    "actions": [],
+    "num_rules": 0,
+    "headers": [
+        "Rules",
+        " "
+    ],
+    "data": [
+        [
+            "Conditions",
+            " "
+        ],
+        [
+            " ",
+            "c"
+        ],
+        [
+            " ",
+            "c2"
+        ],
+        [
+            "Actions",
+            " "
+        ]
+    ]
+}

@@ -1,0 +1,74 @@
+{
+    "table_name": "d",
+    "num_conditions": 3,
+    "conditions": [
+        [
+            "Cond1",
+            "True/False"
+        ],
+        [
+            "cond2",
+            "True/False"
+        ],
+        [
+            "Cond3",
+            "True/False"
+        ]
+    ],
+    "num_actions": 2,
+    "actions": [
+        [
+            "act 1",
+            "True/False"
+        ],
+        [
+            "act2",
+            "True/False"
+        ]
+    ],
+    "num_rules": 2,
+    "headers": [
+        "Rules",
+        " ",
+        "1",
+        "2"
+    ],
+    "data": [
+        [
+            "Conditions",
+            " ",
+            " ",
+            " "
+        ],
+        [
+            " ",
+            "Cond1",
+            "False",
+            "False"
+        ],
+        [
+            " ",
+            "cond2",
+            "False",
+            "False"
+        ],
+        [
+            " ",
+            "Cond3",
+            "False",
+            "False"
+        ],
+        [
+            "Actions",
+            " ",
+            " ",
+            " "
+        ],
+        [
+            " ",
+            "act2",
+            "False",
+            "False"
+        ]
+    ]
+}
