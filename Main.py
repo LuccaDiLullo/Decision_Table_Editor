@@ -1,7 +1,7 @@
 import json
 import copy
 import functools
-from pywebio.input import input, select, input_group, NUMBER, input_update, FLOAT
+from pywebio.input import input, select, input_group, NUMBER, input_update, FLOAT, file_upload
 from pywebio.output import clear, put_button, put_text, put_table
 
 conditions = []
@@ -18,24 +18,38 @@ custom2attributes = {}
 table_data = {
     "table_name": "My Decision Table",
     "num_conditions": 0,
+    "conditions": [],
     "num_actions": 0,
+    "actions": [],
     "num_rules": 0,
     "headers": ["Rules", " "],
     "data": [["Conditions", " "], ["Actions", " "]]
 }
 
+opened_file = None
+
 
 def main():
     """Display the initial 'Create table' button."""
     put_button('Create Table', onclick=create_table)
+    put_button('Open Table', onclick=open_table)
 
 
 def create_table():
     # Prompt user to enter a table name
     table_data["table_name"] = input("Name this decision table", validate=naming)
-    
+
     # Updates the table visual on display
     save(table_data)
+    display_table()
+
+def open_table():
+    global table_data, opened_file
+    # Prompt user to enter a table name
+    opened_file = file_upload("Select .json file to open", accept=".json")
+    table_data = json.loads(opened_file['content'])
+    print(table_data)
+    # Updates the table visual on display
     display_table()
 
 def naming(name):
@@ -180,9 +194,8 @@ def add_rule():
     global actions              # Uses the global value of the actions list
     global custom2attributes    # Uses the global value for custom types
 
-    if actions == [] and conditions == []:
+    if table_data['actions'] == [] and table_data['conditions'] == []:
         put_text("Create a condition or an action first!")
-
     else:
         # Update values in the table data object and conditions list
         table_data["num_rules"] += 1 
@@ -192,7 +205,7 @@ def add_rule():
                     row.append(" ")
             
             # check the type of condition and fill default
-            for condition in conditions:
+            for condition in table_data['conditions']:
                 if condition[0] == row[1] and condition[1] == "True/False":
                     row.append("False")
                 elif condition[0] == row[1] and condition[1] == "Integer":
@@ -213,7 +226,7 @@ def add_rule():
                             row.append(custom2attributes[custom_type][0])
 
             # check the type of actiona and fill default
-            for action in actions:
+            for action in table_data['actions']:
                 if action[0] == row[1] and action[1] == "True/False":
                     row.append("False")
                 elif action[0] == row[1] and action[1] == "Integer":
@@ -355,15 +368,15 @@ def toggle_range(row, column, bracket):
 
 # Toggles the value in the table from where the user interaction came from for decimal values
 def toggle_decimal(row, column):
-    global conditions
-    global actions
+    global table_data
+    
     name = table_data["data"][row][1]
     decimal_num = "0"
-    for condition in conditions:
+    for condition in table_data['conditions']:
         if condition[0] == name: 
             decimal_num = condition[1]
             break
-    for action in actions:
+    for action in table_data['actions']:
         if action[0] == name:
             decimal_num = action[1]
             break
@@ -407,9 +420,14 @@ def get_color(value):
     else: return 'warning'
 
 def save(table_data):
+    global opened_file
     json_object = json.dumps(table_data, indent=4)
-    with open(table_data["table_name"]+".json", "w") as outfile:
-        outfile.write(json_object)
+    if (opened_file == None):
+        with open(table_data["table_name"]+".json", "w") as outfile:
+            outfile.write(json_object)
+    else:
+        with open(opened_file['filename'], "w") as outfile:
+            outfile.write(json_object)
 
 if __name__ == '__main__':
     main()
