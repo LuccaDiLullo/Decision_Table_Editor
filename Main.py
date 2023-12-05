@@ -21,6 +21,7 @@ table_data = {
     "conditions": [],
     "num_actions": 0,
     "actions": [],
+    "custom_types": [],
     "num_rules": 0,
     "headers": ["Rules", " "],
     "data": [["Conditions", " "], ["Actions", " "]]
@@ -112,10 +113,13 @@ def add_condition():
     # Add this condition to the global conditions list
     if inputs["condition_type"] == "True/False":
         conditions.append([inputs["condition_name"], inputs["condition_type"]])
+        table_data['conditions'].append([inputs["condition_name"], inputs["condition_type"]])
     elif inputs["condition_type"] == "Number": 
         conditions.append([inputs["condition_name"], num_inputs_types["attributes"]])
+        table_data['conditions'].append([inputs["condition_name"], num_inputs_types["attributes"]])
     elif inputs["condition_type"] == "Custom":
         conditions.append([inputs["condition_name"], cus_inputs_types["type"]])
+        table_data['conditions'].append([inputs["condition_name"], cus_inputs_types["type"]])
     
     # Updates the table visual on display
     save(table_data)
@@ -178,10 +182,13 @@ def add_action():
     # Add this condition to the global actions list
     if inputs["action_type"] == "True/False":
         actions.append([inputs["action_name"], inputs["action_type"]])
+        table_data['actions'].append([inputs["action_name"], inputs["action_type"]])
     elif inputs["action_type"] == "Number":
         actions.append([inputs["action_name"], inputs_types["attributes"]])
+        table_data['actions'].append([inputs["action_name"], inputs_types["attributes"]])
     elif inputs["action_type"] == "Custom":
         actions.append([inputs["action_name"], cus_inputs_types["type"]])
+        table_data['actions'].append([inputs["action_name"], cus_inputs_types["type"]])
     
     # Updates the table visual on display
     save(table_data)
@@ -259,6 +266,11 @@ def add_custom_type():
     ])
     custom_list = inputs["custom_type"].split(",")
     custom2attributes[inputs["custom_name"]] = custom_list
+
+    
+
+    save(table_data)
+    display_table()
 
 
 # Creates a Logical Expression
