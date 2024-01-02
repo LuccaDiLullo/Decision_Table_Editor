@@ -223,7 +223,7 @@ def modify_condition(row, column):
 
         # Update rules
         if table_data["num_rules"] != 0:
-            for i in range(2, table_data["num_rules"]+2):
+            for i in range(table_data["num_rules"]):
                 if new_type["condition_type"] == "True/False":
                     table_data["conditions"][index][1] = new_type["condition_type"]
                     table_data["data"][row][i] = "False"
@@ -254,6 +254,147 @@ def modify_condition(row, column):
                     table_data["conditions"][index][1] = cus_inputs_types["type"]
                     table_data["data"][row][i] = table_data['custom'][cus_inputs_types["type"]][0]
     
+    save(table_data)
+    display_table()
+
+def modify_action(row, column):
+    global table_data
+
+    cur_name = table_data["data"][row][column]
+    index = 0
+
+    for action in table_data['actions']:
+        if action[0] == cur_name: 
+            index = table_data['actions'].index(action)
+            break
+    
+    inputs = input_group("Modify Action", [
+        select("Would you like to edit the name?", options=["Yes", "No"], name="name", validate=naming),
+        select("Would you like to edit the type?", options=["Yes", "No"], name="type", validate=naming)
+    ])
+
+    # EDIT BOTH
+    if inputs["name"] == "Yes" and inputs["type"] == "Yes": 
+        new_vars = input_group("Add Action", [
+            input("Enter a new name for the action", name="action_name", validate=naming),
+            select("Select a new type", options=["True/False", "Number", "Custom"], name="action_type"),    # select an action
+        ])
+
+        if new_vars["action_type"] == "Number":
+            number_types = list(number2attributes.keys())
+            num_inputs_types = input_group('Select a type:', [
+                select('Number type', options=number_types, name='type', onchange=lambda c: input_update('attributes', options=number2attributes[c])),
+                select('Attributes', options=number2attributes[number_types[0]], name='attributes'),
+            ])
+
+        if new_vars["action_type"] == "Custom":
+            if table_data['custom'] == {}:
+                put_text("Create a custom type first")
+            else:
+                custom_types = list(table_data['custom'].keys())
+                cus_inputs_types = input_group('Select a type:', [
+                    select('Custom type', options=custom_types, name='type'),
+                ])
+
+        table_data["data"][row][column] = new_vars["action_name"]
+        table_data["actions"][index][0] = new_vars["action_name"]
+        
+        # Update rules
+        if table_data["num_rules"] != 0:
+            for i in range(table_data["num_rules"]):
+                if new_vars["action_type"] == "True/False":
+                    table_data["actions"][index][1] = new_vars["action_type"]
+                    table_data["data"][row][i + table_data["num_conditions"] + 2] = "False"
+                elif new_vars["action_type"] == "Number":
+                    match num_inputs_types["type"]:
+                        case "Integer": 
+                            table_data["actions"][index][1] = num_inputs_types["attributes"]
+                            table_data["data"][row][i + table_data["num_conditions"] + 2] = 0
+                        case "Range": 
+                            if num_inputs_types['attributes'] == "Inclusive":
+                                table_data["actions"][index][1] = num_inputs_types["attributes"]
+                                table_data["data"][row][i + table_data["num_conditions"] + 2] = "[0,0]"
+                            else: 
+                                table_data["actions"][index][1] = num_inputs_types["attributes"]
+                                table_data["data"][row][i + table_data["num_conditions"] + 2] = "]0,0["
+                        case "Decimal": 
+                            match num_inputs_types['attributes']:
+                                case "1": 
+                                    table_data["actions"][index][1] = num_inputs_types["attributes"]
+                                    table_data["data"][row][i + table_data["num_conditions"] + 2] = "0.0"
+                                case "2": 
+                                    table_data["actions"][index][1] = num_inputs_types["attributes"]
+                                    table_data["data"][row][i + table_data["num_conditions"] + 2] = "0.00"
+                                case "3": 
+                                    table_data["actions"][index][1] = num_inputs_types["attributes"]
+                                    table_data["data"][row][i + table_data["num_conditions"] + 2] = "0.000"
+                elif new_vars["action_type"] == "Custom":
+                    table_data["actions"][index][1] = cus_inputs_types["type"]
+                    table_data["data"][row][i + table_data["num_conditions"] + 2] = table_data['custom'][cus_inputs_types["type"]][0]
+        
+    # EDIT NAME ONLY
+    elif inputs["name"] == "Yes" and inputs["type"] == "No":
+        new_name = input_group("Modify this action", [
+            input("Enter a new name for the action", name="action_name", validate=naming),
+        ])
+        table_data["actions"][index][0] = new_name["action_name"]
+        table_data["data"][row][column] = new_name["action_name"]
+    
+    # EDIT TYPE ONLY
+    elif inputs["type"] == "Yes" and inputs["name"] == "No":
+        new_type = input_group("Modify this action", [
+            select("Select a new type", options=["True/False", "Number", "Custom"], name="action_type"),    # select an action
+        ])
+
+        if new_type["action_type"] == "Number":
+            number_types = list(number2attributes.keys())
+            num_inputs_types = input_group('Select a type:', [
+                select('Number type', options=number_types, name='type', onchange=lambda c: input_update('attributes', options=number2attributes[c])),
+                select('Attributes', options=number2attributes[number_types[0]], name='attributes'),
+            ])
+
+        if new_type["action_type"] == "Custom":
+            if table_data['custom'] == {}:
+                put_text("Create a custom type first")
+            else:
+                custom_types = list(table_data['custom'].keys())
+                cus_inputs_types = input_group('Select a type:', [
+                    select('Custom type', options=custom_types, name='type'),
+                ])
+
+        # Update rules
+        if table_data["num_rules"] != 0:
+            for i in range(table_data["num_rules"]):
+                if new_type["action_type"] == "True/False":
+                    table_data["actions"][index][1] = new_type["action_type"]
+                    table_data["data"][row][i + table_data["num_conditions"] + 2] = "False"
+                elif new_type["action_type"] == "Number":
+                    match num_inputs_types["type"]:
+                        case "Integer": 
+                            table_data["actions"][index][1] = num_inputs_types["attributes"]
+                            table_data["data"][row][i + table_data["num_conditions"] + 2] = 0
+                        case "Range": 
+                            if num_inputs_types['attributes'] == "Inclusive":
+                                table_data["actions"][index][1] = num_inputs_types["attributes"]
+                                table_data["data"][row][i + table_data["num_conditions"] + 2] = "[0,0]"
+                            else: 
+                                table_data["actions"][index][1] = num_inputs_types["attributes"]
+                                table_data["data"][row][i + table_data["num_conditions"] + 2] = "]0,0["
+                        case "Decimal": 
+                            match num_inputs_types['attributes']:
+                                case "1": 
+                                    table_data["actions"][index][1] = num_inputs_types["attributes"]
+                                    table_data["data"][row][i + table_data["num_conditions"] + 2] = "0.0"
+                                case "2": 
+                                    table_data["actions"][index][1] = num_inputs_types["attributes"]
+                                    table_data["data"][row][i + table_data["num_conditions"] + 2] = "0.00"
+                                case "3": 
+                                    table_data["actions"][index][1] = num_inputs_types["attributes"]
+                                    table_data["data"][row][i + table_data["num_conditions"] + 2] = "0.000"
+                elif new_type["action_type"] == "Custom":
+                    table_data["actions"][index][1] = cus_inputs_types["type"]
+                    table_data["data"][row][i + table_data["num_conditions"] + 2] = table_data['custom'][cus_inputs_types["type"]][0]
+
     save(table_data)
     display_table()
 

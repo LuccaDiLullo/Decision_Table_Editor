@@ -1,0 +1,32 @@
+{
+    "table_name": "T",
+    "num_conditions": 1,
+    "conditions": [
+        [
+            "C2",
+            "True/False"
+        ]
+    ],
+    "num_actions": 0,
+    "actions": [],
+    "custom": {},
+    "num_rules": 0,
+    "headers": [
+        "Rules",
+        " "
+    ],
+    "data": [
+        [
+            "Conditions",
+            " "
+        ],
+        [
+            " ",
+            "C2"
+        ],
+        [
+            "Actions",
+            " "
+        ]
+    ]
+}

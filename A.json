@@ -1,0 +1,57 @@
+{
+    "table_name": "A",
+    "num_conditions": -3,
+    "conditions": [],
+    "num_actions": 3,
+    "actions": [
+        [
+            "A1",
+            "True/False"
+        ],
+        [
+            "A2",
+            "True/False"
+        ],
+        [
+            "A#",
+            "Inclusive"
+        ]
+    ],
+    "custom": {},
+    "num_rules": 7,
+    "headers": [
+        "Rules",
+        " ",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7"
+    ],
+    "data": [
+        [
+            "Conditions",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " "
+        ],
+        [
+            "Actions",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " "
+        ]
+    ]
+}
