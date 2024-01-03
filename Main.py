@@ -223,7 +223,7 @@ def modify_condition(row, column):
 
         # Update rules
         if table_data["num_rules"] != 0:
-            for i in range(table_data["num_rules"]):
+            for i in range(2, table_data["num_rules"]+2):
                 if new_type["condition_type"] == "True/False":
                     table_data["conditions"][index][1] = new_type["condition_type"]
                     table_data["data"][row][i] = "False"
@@ -304,33 +304,33 @@ def modify_action(row, column):
             for i in range(table_data["num_rules"]):
                 if new_vars["action_type"] == "True/False":
                     table_data["actions"][index][1] = new_vars["action_type"]
-                    table_data["data"][row][i + table_data["num_conditions"] + 2] = "False"
+                    table_data["data"][row][i+2] = "False"
                 elif new_vars["action_type"] == "Number":
                     match num_inputs_types["type"]:
                         case "Integer": 
                             table_data["actions"][index][1] = num_inputs_types["attributes"]
-                            table_data["data"][row][i + table_data["num_conditions"] + 2] = 0
+                            table_data["data"][row][i+2] = 0
                         case "Range": 
                             if num_inputs_types['attributes'] == "Inclusive":
                                 table_data["actions"][index][1] = num_inputs_types["attributes"]
-                                table_data["data"][row][i + table_data["num_conditions"] + 2] = "[0,0]"
+                                table_data["data"][row][i+2] = "[0,0]"
                             else: 
                                 table_data["actions"][index][1] = num_inputs_types["attributes"]
-                                table_data["data"][row][i + table_data["num_conditions"] + 2] = "]0,0["
+                                table_data["data"][row][i+2] = "]0,0["
                         case "Decimal": 
                             match num_inputs_types['attributes']:
                                 case "1": 
                                     table_data["actions"][index][1] = num_inputs_types["attributes"]
-                                    table_data["data"][row][i + table_data["num_conditions"] + 2] = "0.0"
+                                    table_data["data"][row][i+2] = "0.0"
                                 case "2": 
                                     table_data["actions"][index][1] = num_inputs_types["attributes"]
-                                    table_data["data"][row][i + table_data["num_conditions"] + 2] = "0.00"
+                                    table_data["data"][row][i+2] = "0.00"
                                 case "3": 
                                     table_data["actions"][index][1] = num_inputs_types["attributes"]
-                                    table_data["data"][row][i + table_data["num_conditions"] + 2] = "0.000"
+                                    table_data["data"][row][i+2] = "0.000"
                 elif new_vars["action_type"] == "Custom":
                     table_data["actions"][index][1] = cus_inputs_types["type"]
-                    table_data["data"][row][i + table_data["num_conditions"] + 2] = table_data['custom'][cus_inputs_types["type"]][0]
+                    table_data["data"][row][i+2] = table_data['custom'][cus_inputs_types["type"]][0]
         
     # EDIT NAME ONLY
     elif inputs["name"] == "Yes" and inputs["type"] == "No":
@@ -367,33 +367,33 @@ def modify_action(row, column):
             for i in range(table_data["num_rules"]):
                 if new_type["action_type"] == "True/False":
                     table_data["actions"][index][1] = new_type["action_type"]
-                    table_data["data"][row][i + table_data["num_conditions"] + 2] = "False"
+                    table_data["data"][row][i+2] = "False"
                 elif new_type["action_type"] == "Number":
                     match num_inputs_types["type"]:
                         case "Integer": 
                             table_data["actions"][index][1] = num_inputs_types["attributes"]
-                            table_data["data"][row][i + table_data["num_conditions"] + 2] = 0
+                            table_data["data"][row][i+2] = 0
                         case "Range": 
                             if num_inputs_types['attributes'] == "Inclusive":
                                 table_data["actions"][index][1] = num_inputs_types["attributes"]
-                                table_data["data"][row][i + table_data["num_conditions"] + 2] = "[0,0]"
+                                table_data["data"][row][i+2] = "[0,0]"
                             else: 
                                 table_data["actions"][index][1] = num_inputs_types["attributes"]
-                                table_data["data"][row][i + table_data["num_conditions"] + 2] = "]0,0["
+                                table_data["data"][row][i+2] = "]0,0["
                         case "Decimal": 
                             match num_inputs_types['attributes']:
                                 case "1": 
                                     table_data["actions"][index][1] = num_inputs_types["attributes"]
-                                    table_data["data"][row][i + table_data["num_conditions"] + 2] = "0.0"
+                                    table_data["data"][row][i+2] = "0.0"
                                 case "2": 
                                     table_data["actions"][index][1] = num_inputs_types["attributes"]
-                                    table_data["data"][row][i + table_data["num_conditions"] + 2] = "0.00"
+                                    table_data["data"][row][i+2] = "0.00"
                                 case "3": 
                                     table_data["actions"][index][1] = num_inputs_types["attributes"]
-                                    table_data["data"][row][i + table_data["num_conditions"] + 2] = "0.000"
+                                    table_data["data"][row][i+2] = "0.000"
                 elif new_type["action_type"] == "Custom":
                     table_data["actions"][index][1] = cus_inputs_types["type"]
-                    table_data["data"][row][i + table_data["num_conditions"] + 2] = table_data['custom'][cus_inputs_types["type"]][0]
+                    table_data["data"][row][i+2] = table_data['custom'][cus_inputs_types["type"]][0]
 
     save(table_data)
     display_table()
@@ -631,8 +631,10 @@ def display_table():
                 table_array[i][j] = put_button(table_array[i][j], onclick= functools.partial(toggle_decimal, i, j), color='light')
             elif isinstance(table_array[i][j], str) and j > 1 and table_array[i][0] != "Conditions" and table_array[i][0] != "Actions":
                 table_array[i][j] = put_button(table_array[i][j], onclick= functools.partial(toggle_custom, i, j), color='light')
-            elif isinstance(table_array[i][j], str) and j == 1 and table_array[i][0] != "Conditions" and table_array[i][0] != "Actions":
+            elif isinstance(table_array[i][j], str) and j == 1 and i <= table_data["num_conditions"] and table_array[i][0] != "Conditions" and table_array[i][0] != "Actions":
                 table_array[i][j] = put_button(table_array[i][j], onclick= functools.partial(modify_condition, i, j), color='light')
+            elif isinstance(table_array[i][j], str) and j == 1 and i > table_data["num_conditions"]+1 and table_array[i][0] != "Conditions" and table_array[i][0] != "Actions":
+                table_array[i][j] = put_button(table_array[i][j], onclick= functools.partial(modify_action, i, j), color='light')
 
     # Update the UI
     clear()
@@ -644,7 +646,6 @@ def display_table():
     put_button('Add rule', onclick=add_rule)
     put_button('Add a custom type', onclick=add_custom_type)
     # put_button('Add Logical Expression', onclick=logic_expression)
-    
 
 # Toggles the value in the table from where the user interaction came from for booleans
 def toggle_boolean(row, column):
