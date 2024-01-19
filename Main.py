@@ -2,7 +2,7 @@ import json
 import copy
 import functools
 from pywebio.input import input, select, input_group, NUMBER, input_update, FLOAT, file_upload
-from pywebio.output import clear, put_button, put_text, put_table
+from pywebio.output import clear, put_button, put_text, put_table, style, put_row
 
 number2attributes = {
     'Integer': ['Integer'],
@@ -398,6 +398,14 @@ def modify_action(row, column):
     save(table_data)
     display_table()
 
+def rename_table():
+    new_name = input_group("Rename decision table", [
+        input("Enter a new name for the table", name="table_name", validate=naming),
+    ])
+    table_data["table_name"]= new_name["table_name"]
+    save(table_data)
+    display_table()
+
 # Adds a new action row to the table
 def add_action():
     global table_data   # Uses the global value of the table data
@@ -638,13 +646,15 @@ def display_table():
 
     # Update the UI
     clear()
-    put_text(table_data["table_name"])
+    style(put_text(table_data["table_name"]), "font-weight:bold; font-size:2rem")
+    
     put_table(table_array, header=table_data["headers"])
 
     put_button('Add condition', onclick=add_condition)
     put_button('Add action', onclick=add_action)
     put_button('Add rule', onclick=add_rule)
     put_button('Add a custom type', onclick=add_custom_type)
+    put_button('Rename table', onclick=rename_table)
     # put_button('Add Logical Expression', onclick=logic_expression)
 
 # Toggles the value in the table from where the user interaction came from for booleans
