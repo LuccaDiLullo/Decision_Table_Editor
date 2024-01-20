@@ -617,12 +617,25 @@ def display_table():
     # table_array is used to pass to the data library put_table function
     table_array = copy.deepcopy(table_data["data"])
 
+    flag = False
+
     for i in range(len(table_data["data"])):
-        if table_data["data"][i][0] == "Conditions" or table_data["data"][i][0] == "Actions":
+        if table_data["data"][i][0] == "Conditions":
+            continue
+        
+        if table_data["data"][i][0] == "Actions":
+            flag = True
             continue
 
-        delete_button = put_button('Delete', onclick=functools.partial(delete_condition, i), small=True, color='info')
-        table_array[i].append(delete_button)
+        if flag == False:
+            delete_button = put_button('Delete', onclick=functools.partial(delete_condition, i), small=True, color='info')
+            table_array[i].append(delete_button)
+
+        if flag == True:
+            delete_button = put_button('Delete', onclick=functools.partial(delete_action, i), small=True, color='info')
+            table_array[i].append(delete_button)
+
+    flag = False
 
     # Convert boolean values to buttons
     for i in range(len(table_data["data"])):

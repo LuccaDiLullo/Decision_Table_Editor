@@ -1,0 +1,78 @@
+{
+    "table_name": "T",
+    "num_conditions": 3,
+    "conditions": [
+        [
+            "C2",
+            "True/False"
+        ],
+        [
+            "C3",
+            "True/False"
+        ],
+        [
+            "C4",
+            "True/False"
+        ]
+    ],
+    "num_actions": 3,
+    "actions": [
+        [
+            "A3",
+            "True/False"
+        ],
+        [
+            "A5",
+            "True/False"
+        ]
+    ],
+    "custom": {},
+    "num_rules": 1,
+    "headers": [
+        "Rules",
+        " ",
+        "1"
+    ],
+    "data": [
+        [
+            "Conditions",
+            " ",
+            " "
+        ],
+        [
+            " ",
+            "C2",
+            "False"
+        ],
+        [
+            " ",
+            "C3",
+            "False"
+        ],
+        [
+            " ",
+            "C4",
+            "False"
+        ],
+        [
+            "Actions",
+            " ",
+            " "
+        ],
+        [
+            " ",
+            "A3",
+            "False"
+        ],
+        [
+            " ",
+            "A4",
+            "False"
+        ],
+        [
+            " ",
+            "A5",
+            "False"
+        ]
+    ]
+}
