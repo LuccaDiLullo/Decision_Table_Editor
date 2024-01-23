@@ -26,7 +26,8 @@ table_data = {
 opened_file = None
 
 def main():
-    """Display the initial 'Create table' button."""
+    #Display the initial 'Create table' button.
+    clear()
     put_button('Create Table', onclick=create_table)
     put_button('Open Table', onclick=open_table)
 
@@ -697,6 +698,7 @@ def display_table():
     put_button('Add a custom type', onclick=add_custom_type)
     put_button('Rename table', onclick=rename_table)
     put_button('Delete a rule', onclick=delete_rule)
+    put_button("Close Table", onclick=main)
     # put_button('Add Logical Expression', onclick=logic_expression)
 
 # Toggles the value in the table from where the user interaction came from for booleans
