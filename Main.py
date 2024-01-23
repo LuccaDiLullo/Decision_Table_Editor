@@ -26,8 +26,20 @@ table_data = {
 opened_file = None
 
 def main():
-    #Display the initial 'Create table' button.
+    global table_data, opened_file
     clear()
+    table_data = {
+        "table_name": "My Decision Table",
+        "num_conditions": 0,
+        "conditions": [],
+        "num_actions": 0,
+        "actions": [],
+        "custom": {},
+        "num_rules": 0,
+        "headers": ["Rules", " "],
+        "data": [["Conditions", " "], ["Actions", " "]]
+    }
+    opened_file = None
     put_button('Create Table', onclick=create_table)
     put_button('Open Table', onclick=open_table)
 
