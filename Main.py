@@ -526,6 +526,7 @@ def add_rule():
                         if custom_type == action[1]: 
                             row.append(table_data['custom'][custom_type][0])
         
+        
         # Updates the table visual on display
         save(table_data)
         display_table()
@@ -557,6 +558,33 @@ def delete_action(row_index):
 
     # Remove the action from the table data
     del table_data["data"][row_index]
+
+    # Update the UI
+    save(table_data)
+    display_table()
+
+def delete_rule():
+    
+    global table_data
+    
+    # prompt which rule(s) to delete
+    selected_rules = input("Input rule(s) separated by a comma, (1,2,3):", validate=naming)
+    
+    selected_list = selected_rules.split(",")
+    selected_list.sort(reverse=True)
+
+    for index in selected_list:
+
+        if int(index) > table_data["num_rules"]: return "rule number {} does not exist".format(int(index))
+        
+        del table_data["headers"][-1]
+        row = 0
+        for _ in table_data["data"]:
+            del table_data["data"][row][int(index)+1]
+            
+            row += 1
+
+    table_data["num_rules"] -= len(selected_list)
 
     # Update the UI
     save(table_data)
@@ -668,6 +696,7 @@ def display_table():
     put_button('Add rule', onclick=add_rule)
     put_button('Add a custom type', onclick=add_custom_type)
     put_button('Rename table', onclick=rename_table)
+    put_button('Delete a rule', onclick=delete_rule)
     # put_button('Add Logical Expression', onclick=logic_expression)
 
 # Toggles the value in the table from where the user interaction came from for booleans
