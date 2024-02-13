@@ -2,7 +2,7 @@ import json
 import copy
 import functools
 from pywebio.input import input, select, input_group, NUMBER, input_update, FLOAT, file_upload
-from pywebio.output import clear, put_button, put_text, put_table, style, put_row
+from pywebio.output import clear, put_button, put_text, put_table, style, put_row, popup
 
 number2attributes = {
     'Integer': ['Integer'],
@@ -708,7 +708,111 @@ def display_table():
     put_button('Rename table', onclick=rename_table)
     put_button('Delete a rule', onclick=delete_rule)
     put_button("Close Table", onclick=main)
+    put_button("Optimize Table", onclick=identify_warnings)
     # put_button('Add Logical Expression', onclick=logic_expression)
+
+def identify_warnings():
+    # Check for unused conditions
+    warnings = []
+    unused_conditions_warnings = []
+    if table_data["conditions"] != [] and table_data["num_rules"] != 0:
+        row = 1
+        for condition in table_data["conditions"]:
+            c_name = condition[0]
+            c_type = condition[1]
+            c_default = ""
+            match c_type:
+                case "True/False": 
+                    c_default = "False"
+                case "Integer":
+                    c_default = 0
+                case "1":
+                    c_default = "0.0"
+                case "2":
+                    c_default = "0.00"
+                case "3":
+                    c_default = "0.000"
+                case "Inclusive":
+                    c_default = "[0,0]"
+                case "Exclusive":
+                    c_default = "]0,0["
+                case _:
+                    c_default = table_data["custom"][c_type][0]
+            print(row)
+            for i in range(table_data["num_rules"]):
+                if table_data["data"][row][i+2] == c_default:
+                    if i+1 == table_data["num_rules"]:
+                        unused_conditions_warnings.append(row)
+                        warnings.append(c_name)
+                        row += 1
+                        break
+                    else: continue
+                else: 
+                    row += 1
+                    break
+    
+    # Check for unused actions
+    unused_actions_warnings = []
+    if table_data["actions"] != [] and table_data["num_rules"] != 0:
+        row = table_data["num_conditions"] + 2
+        for action in table_data["actions"]:
+            a_name = action[0]
+            a_type = action[1]
+            a_default = ""
+            match a_type:
+                case "True/False": 
+                    a_default = "False"
+                case "Integer":
+                    a_default = 0
+                case "1":
+                    a_default = "0.0"
+                case "2":
+                    a_default = "0.00"
+                case "3":
+                    a_default = "0.000"
+                case "Inclusive":
+                    a_default = "[0,0]"
+                case "Exclusive":
+                    a_default = "]0,0["
+                case _:
+                    a_default = table_data["custom"][a_type][0]
+            print(row)
+            for i in range(table_data["num_rules"]):
+                if table_data["data"][row][i+2] == a_default:
+                    if i+1 == table_data["num_rules"]:
+                        unused_actions_warnings.append(row)
+                        warnings.append(a_name)
+                        row += 1
+                        break
+                    else: continue
+                else: 
+                    row += 1
+                    break
+    
+    # pop up
+    warnings_text = ""
+    warning_num = 1
+    for warning in warnings:
+        warnings_text += "Warning " + str(warning_num) + ": '" + warning + "' is unsused\n" 
+        warning_num += 1
+    
+    popup("Identified Warnings", [
+        put_text(warnings_text),
+        put_button("Fix warnings", functools.partial(optimize_table, unused_conditions_warnings, unused_actions_warnings))
+    ])
+
+def optimize_table(unused_conditions_list, unused_actions_list):
+    unused_actions_list.reverse()
+    unused_conditions_list.reverse()
+    
+    for warning in unused_actions_list:
+        delete_action(warning)
+    for warning in unused_conditions_list:
+        delete_condition(warning)
+
+    save(table_data)
+    display_table()
+    put_text("optimization complete")
 
 # Toggles the value in the table from where the user interaction came from for booleans
 def toggle_boolean(row, column):
