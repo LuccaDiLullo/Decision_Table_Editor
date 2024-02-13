@@ -581,23 +581,20 @@ def delete_rule():
     global table_data
     
     # prompt which rule(s) to delete
-    selected_rules = input("Input rule(s) separated by a comma, (1,2,3):", validate=naming)
-    
-    selected_list = selected_rules.split(",")
-    selected_list.sort(reverse=True)
+    index = input("Input rule number to delete:", validate=naming)
 
-    for index in selected_list:
+    if isinstance(int(index), int):
 
         if int(index) > table_data["num_rules"]: return "rule number {} does not exist".format(int(index))
-        
+    
         del table_data["headers"][-1]
         row = 0
         for _ in table_data["data"]:
             del table_data["data"][row][int(index)+1]
-            
+        
             row += 1
 
-    table_data["num_rules"] -= len(selected_list)
+        table_data["num_rules"] -= 1
 
     # Update the UI
     save(table_data)
