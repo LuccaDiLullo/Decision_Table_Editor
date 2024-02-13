@@ -707,6 +707,7 @@ def display_table():
     put_button('Add a custom type', onclick=add_custom_type)
     put_button('Rename table', onclick=rename_table)
     put_button('Delete a rule', onclick=delete_rule)
+    put_button('Optimize Table', onclick=optimize_table)
     put_button("Close Table", onclick=main)
     # put_button('Add Logical Expression', onclick=logic_expression)
 
@@ -804,6 +805,77 @@ def save(table_data):
     else:
         with open(opened_file['filename'], "w") as outfile:
             outfile.write(json_object)
+
+
+
+def optimize_table():
+    global table_data
+    # Create dictionaries to hold ranges and integers for conditions and actions
+    condition_ranges = {}
+    condition_integers = {}
+    action_ranges = {}
+    action_integers = {}
+
+    # Populate the dictionaries
+    for i, condition in enumerate(table_data["conditions"]):
+        if condition[1] == 'Range':
+            condition_ranges[condition[0]] = i
+        elif condition[1] == 'Integer':
+            condition_integers[condition[0]] = i
+
+    for i, action in enumerate(table_data["actions"]):
+        if action[1] == 'Range':
+            action_ranges[action[0]] = i
+        elif action[1] == 'Integer':
+            action_integers[action[0]] = i
+
+    # Function to optimize ranges
+    def optimize_ranges(ranges_dict):
+        to_remove = []
+        keys = list(ranges_dict.keys())
+        for i in range(len(keys)):
+            for j in range(i+1, len(keys)):
+                key1, key2 = keys[i], keys[j]
+                # Extract ranges
+                range1 = eval(table_data["data"][ranges_dict[key1]][2])
+                range2 = eval(table_data["data"][ranges_dict[key2]][2])
+                # Find overlap
+                new_range = [max(range1[0], range2[0]), min(range1[1], range2[1])]
+                # Check for actual overlap
+                if new_range[0] <= new_range[1]:
+                    # Update the table data
+                    table_data["data"][ranges_dict[key1]][2] = str(new_range)
+                    to_remove.append(key2)
+        return to_remove
+
+    # Optimize ranges and remove redundant conditions
+    to_remove_conditions = optimize_ranges(condition_ranges)
+    to_remove_actions = optimize_ranges(action_ranges)
+    
+    # Remove the redundant conditions
+    table_data["conditions"] = [cond for cond in table_data["conditions"] if cond[0] not in to_remove_conditions]
+    table_data["num_conditions"] -= len(to_remove_conditions)
+    table_data["data"] = [row for row in table_data["data"] if row[1] not in to_remove_conditions]
+
+    # Remove the redundant actions
+    table_data["actions"] = [act for act in table_data["actions"] if act[0] not in to_remove_actions]
+    table_data["num_actions"] -= len(to_remove_actions)
+    table_data["data"] = [row for row in table_data["data"] if row[1] not in to_remove_actions]
+  
+
+ # Remove redundant actions from data
+    for action_name in to_remove_actions:
+        row_index = next((index for index, row in enumerate(table_data["data"]) if row[1] == action_name), None)
+        if row_index is not None:
+            del table_data["data"][row_index]
+
+
+    # Refresh the headers to remove the deleted condition and action names
+    table_data["headers"] = ["Rules"] + [str(i) for i in range(1, table_data["num_rules"] + 1)]
+
+    # Call to update the display
+    display_table()
+
 
 if __name__ == '__main__':
     main()
