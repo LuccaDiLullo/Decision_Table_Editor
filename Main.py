@@ -777,16 +777,10 @@ def identify_warnings():
             a_value = table_data["data"][row][2]
             flag = True
             for i in range(table_data["num_rules"]):
-                if table_data["data"][row][i+2] == a_default:
-                    if i+1 == table_data["num_rules"]:
-                        unused_actions_warnings.append(row)
-                        warnings.append(a_name)
-                elif table_data["data"][row][i+2] != a_value:
+                if table_data["data"][row][i+2] != a_value:
                     flag = False
-                else: 
-                    break
                 
-            if flag and a_value != a_default: 
+            if flag: 
                 unused_actions_warnings.append(row)
                 warnings.append(a_name)
             row += 1
