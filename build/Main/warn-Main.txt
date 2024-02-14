@@ -18,7 +18,7 @@ missing module named pyimod02_importers - imported by /Library/Frameworks/Python
 missing module named _winapi - imported by encodings (delayed, conditional, optional), ntpath (optional), subprocess (conditional), multiprocessing.connection (optional), multiprocessing.spawn (delayed, conditional), multiprocessing.reduction (conditional), multiprocessing.shared_memory (conditional), multiprocessing.heap (conditional), multiprocessing.popen_spawn_win32 (top-level), asyncio.windows_events (top-level), asyncio.windows_utils (top-level), mimetypes (optional)
 missing module named msvcrt - imported by subprocess (optional), multiprocessing.spawn (delayed, conditional), multiprocessing.popen_spawn_win32 (top-level), asyncio.windows_events (top-level), asyncio.windows_utils (top-level), getpass (optional)
 missing module named org - imported by pickle (optional)
-missing module named nt - imported by os (delayed, conditional, optional), ntpath (optional), shutil (conditional), importlib._bootstrap_external (conditional), ctypes (delayed, conditional)
+missing module named nt - imported by shutil (conditional), importlib._bootstrap_external (conditional), ntpath (optional), os (delayed, conditional, optional), ctypes (delayed, conditional)
 missing module named _manylinux - imported by pkg_resources._vendor.packaging._manylinux (delayed, optional), packaging._manylinux (delayed, optional)
 missing module named jinja2 - imported by pyparsing.diagram (top-level), pkg_resources._vendor.pyparsing.diagram (top-level)
 missing module named railroad - imported by pkg_resources._vendor.pyparsing.diagram (top-level), pyparsing.diagram (top-level)
