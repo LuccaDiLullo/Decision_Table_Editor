@@ -741,16 +741,10 @@ def identify_warnings():
             c_value = table_data["data"][row][2]
             flag = True
             for i in range(table_data["num_rules"]):
-                if table_data["data"][row][i+2] == c_default:
-                    if i+1 == table_data["num_rules"]:
-                        unused_conditions_warnings.append(row)
-                        warnings.append(c_name)
-                elif table_data["data"][row][i+2] != c_value:
+                if table_data["data"][row][i+2] != c_value:
                     flag = False
-                else:
-                    break
-                
-            if flag and c_value != c_default: 
+      
+            if flag: 
                 unused_conditions_warnings.append(row)
                 warnings.append(c_name)
             row += 1
