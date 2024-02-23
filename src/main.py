@@ -613,42 +613,6 @@ def add_custom_type():
     display_table()
 
 
-# Creates a Logical Expression
-def logic_expression():
-
-    # Creates an input group pop up to input rule parameters
-    inputs = input_group("Add Rule", [
-        select("If [condition]", options=conditions, name="rule_condition"),
-        select("is [boolean]", options=[True, False], name="rule_boolean"),
-        select("Then [action]", options=actions, name="rule_action"),
-        select("is [decision]", options=[True, False], name="rule_decision")
-    ])
-
-    condition_index = table_data["headers"].index(inputs['rule_condition'])
-    action_index = table_data["headers"].index(inputs['rule_action'])
-
-    for row_index, row in enumerate(table_data["data"]):
-        if row[condition_index] == inputs["rule_boolean"]:
-            if row[action_index] != inputs["rule_decision"]:
-                toggle_action(row_index, action_index)
-
-    rule_display = (f"Rule: if {inputs['rule_condition']} = "
-                    f"{inputs['rule_boolean']}, then {inputs['rule_action']}="
-                    f"{inputs['rule_decision']}")
-    put_text(rule_display)
-
-    i_r = 0     # index for each row in the table
-    # for each row where the condition equals the input condition, update the action
-    for row in table_data["data"]:
-        if row[i_c] == inputs["rule_boolean"]:
-            if row[i_a] != inputs["rule_decision"]:
-                toggle_boolean(i_r, i_a)     # updates the button
-        i_r+=1
-    
-    # Print the rule to the main page
-    put_text("Rule: if {} = {}, then {} = {}".format(
-        inputs['rule_condition'], inputs['rule_boolean'], inputs['rule_action'], inputs['rule_decision']))
-
 def display_table():
     global table_data   # Uses the global value of the table data
 
@@ -709,7 +673,6 @@ def display_table():
     put_button('Delete a rule', onclick=delete_rule)
     put_button("Close Table", onclick=main)
     put_button("Optimize Table", onclick=identify_warnings)
-    # put_button('Add Logical Expression', onclick=logic_expression)
 
 def identify_warnings():
     # Check for unused conditions
