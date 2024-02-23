@@ -3,12 +3,8 @@ import copy
 import functools
 from pywebio.input import input, select, input_group, NUMBER, input_update, FLOAT, file_upload
 from pywebio.output import clear, put_button, put_text, put_table, style, put_row, popup, close_popup
+from utils import number_type_attributes, naming_convention, bool_to_color
 
-number2attributes = {
-    'Integer': ['Integer'],
-    'Range': ['Inclusive', 'Exclusive'],
-    'Decimal': ["1", "2", "3"]
-}
 
 # Initialize default table structure
 table_data = {
@@ -46,7 +42,7 @@ def main():
 
 def create_table():
     # Prompt user to enter a table name
-    table_data["table_name"] = input("Name this decision table", validate=naming)
+    table_data["table_name"] = input("Name this decision table", validate=naming_convention)
 
     # Updates the table visual on display
     save(table_data)
@@ -62,25 +58,21 @@ def open_table():
     # Updates the table visual on display
     display_table()
 
-def naming(name):
-    if len(name) < 1 or len(name) > 32:
-        return "Name must be between 1 than 32 characters"
 
 def add_condition():
     global table_data   # Uses the global value of the table data
-    global number2attributes # Uses the global value for number types
 
     # Prompt user to enter a condition name
     inputs = input_group("Add Condition", [
-        input("Enter a name for the condition:", name="condition_name", validate=naming),
+        input("Enter a name for the condition:", name="condition_name", validate=naming_convention),
         select("Select the type of variable", options=["True/False", "Number", "Custom"], name="condition_type"),    # select a conditions
     ])
 
     if inputs["condition_type"] == "Number":
-        number_types = list(number2attributes.keys())
+        number_types = list(number_type_attributes.keys())
         num_inputs_types = input_group('Select a type:', [
-            select('Number type', options=number_types, name='type', onchange=lambda c: input_update('attributes', options=number2attributes[c])),
-            select('Attributes', options=number2attributes[number_types[0]], name='attributes'),
+            select('Number type', options=number_types, name='type', onchange=lambda c: input_update('attributes', options=number_type_attributes[c])),
+            select('Attributes', options=number_type_attributes[number_types[0]], name='attributes'),
         ])
 
     if inputs["condition_type"] == "Custom":
@@ -141,22 +133,22 @@ def modify_condition(row, column):
             break
     
     inputs = input_group("Modify Condition", [
-        select("Would you like to edit the name?", options=["Yes", "No"], name="name", validate=naming),
-        select("Would you like to edit the type?", options=["Yes", "No"], name="type", validate=naming)
+        select("Would you like to edit the name?", options=["Yes", "No"], name="name", validate=naming_convention),
+        select("Would you like to edit the type?", options=["Yes", "No"], name="type", validate=naming_convention)
     ])
 
     # EDIT BOTH
     if inputs["name"] == "Yes" and inputs["type"] == "Yes": 
         new_vars = input_group("Add Condition", [
-            input("Enter a new name for the condition", name="condition_name", validate=naming),
+            input("Enter a new name for the condition", name="condition_name", validate=naming_convention),
             select("Select a new type", options=["True/False", "Number", "Custom"], name="condition_type"),    # select a conditions
         ])
 
         if new_vars["condition_type"] == "Number":
-            number_types = list(number2attributes.keys())
+            number_types = list(number_type_attributes.keys())
             num_inputs_types = input_group('Select a type:', [
-                select('Number type', options=number_types, name='type', onchange=lambda c: input_update('attributes', options=number2attributes[c])),
-                select('Attributes', options=number2attributes[number_types[0]], name='attributes'),
+                select('Number type', options=number_types, name='type', onchange=lambda c: input_update('attributes', options=number_type_attributes[c])),
+                select('Attributes', options=number_type_attributes[number_types[0]], name='attributes'),
             ])
 
         if new_vars["condition_type"] == "Custom":
@@ -207,7 +199,7 @@ def modify_condition(row, column):
     # EDIT NAME ONLY
     elif inputs["name"] == "Yes" and inputs["type"] == "No":
         new_name = input_group("Modify this condition", [
-            input("Enter a new name for the condition", name="condition_name", validate=naming),
+            input("Enter a new name for the condition", name="condition_name", validate=naming_convention),
         ])
         table_data["conditions"][index][0] = new_name["condition_name"]
         table_data["data"][row][column] = new_name["condition_name"]
@@ -219,10 +211,10 @@ def modify_condition(row, column):
         ])
 
         if new_type["condition_type"] == "Number":
-            number_types = list(number2attributes.keys())
+            number_types = list(number_type_attributes.keys())
             num_inputs_types = input_group('Select a type:', [
-                select('Number type', options=number_types, name='type', onchange=lambda c: input_update('attributes', options=number2attributes[c])),
-                select('Attributes', options=number2attributes[number_types[0]], name='attributes'),
+                select('Number type', options=number_types, name='type', onchange=lambda c: input_update('attributes', options=number_type_attributes[c])),
+                select('Attributes', options=number_type_attributes[number_types[0]], name='attributes'),
             ])
 
         if new_type["condition_type"] == "Custom":
@@ -282,22 +274,22 @@ def modify_action(row, column):
             break
     
     inputs = input_group("Modify Action", [
-        select("Would you like to edit the name?", options=["Yes", "No"], name="name", validate=naming),
-        select("Would you like to edit the type?", options=["Yes", "No"], name="type", validate=naming)
+        select("Would you like to edit the name?", options=["Yes", "No"], name="name", validate=naming_convention),
+        select("Would you like to edit the type?", options=["Yes", "No"], name="type", validate=naming_convention)
     ])
 
     # EDIT BOTH
     if inputs["name"] == "Yes" and inputs["type"] == "Yes": 
         new_vars = input_group("Add Action", [
-            input("Enter a new name for the action", name="action_name", validate=naming),
+            input("Enter a new name for the action", name="action_name", validate=naming_convention),
             select("Select a new type", options=["True/False", "Number", "Custom"], name="action_type"),    # select an action
         ])
 
         if new_vars["action_type"] == "Number":
-            number_types = list(number2attributes.keys())
+            number_types = list(number_type_attributes.keys())
             num_inputs_types = input_group('Select a type:', [
-                select('Number type', options=number_types, name='type', onchange=lambda c: input_update('attributes', options=number2attributes[c])),
-                select('Attributes', options=number2attributes[number_types[0]], name='attributes'),
+                select('Number type', options=number_types, name='type', onchange=lambda c: input_update('attributes', options=number_type_attributes[c])),
+                select('Attributes', options=number_type_attributes[number_types[0]], name='attributes'),
             ])
 
         if new_vars["action_type"] == "Custom":
@@ -348,7 +340,7 @@ def modify_action(row, column):
     # EDIT NAME ONLY
     elif inputs["name"] == "Yes" and inputs["type"] == "No":
         new_name = input_group("Modify this action", [
-            input("Enter a new name for the action", name="action_name", validate=naming),
+            input("Enter a new name for the action", name="action_name", validate=naming_convention),
         ])
         table_data["actions"][index][0] = new_name["action_name"]
         table_data["data"][row][column] = new_name["action_name"]
@@ -360,10 +352,10 @@ def modify_action(row, column):
         ])
 
         if new_type["action_type"] == "Number":
-            number_types = list(number2attributes.keys())
+            number_types = list(number_type_attributes.keys())
             num_inputs_types = input_group('Select a type:', [
-                select('Number type', options=number_types, name='type', onchange=lambda c: input_update('attributes', options=number2attributes[c])),
-                select('Attributes', options=number2attributes[number_types[0]], name='attributes'),
+                select('Number type', options=number_types, name='type', onchange=lambda c: input_update('attributes', options=number_type_attributes[c])),
+                select('Attributes', options=number_type_attributes[number_types[0]], name='attributes'),
             ])
 
         if new_type["action_type"] == "Custom":
@@ -413,7 +405,7 @@ def modify_action(row, column):
 
 def rename_table():
     new_name = input_group("Rename decision table", [
-        input("Enter a new name for the table", name="table_name", validate=naming),
+        input("Enter a new name for the table", name="table_name", validate=naming_convention),
     ])
     table_data["table_name"]= new_name["table_name"]
     save(table_data)
@@ -422,19 +414,18 @@ def rename_table():
 # Adds a new action row to the table
 def add_action():
     global table_data   # Uses the global value of the table data
-    global number2attributes # Uses the global value for number types
 
     # Prompt user to enter a condition name
     inputs = input_group("Add Action", [
-        input("Enter a name for the action:", name="action_name", validate=naming),
+        input("Enter a name for the action:", name="action_name", validate=naming_convention),
         select("Select the type of variable", options=["True/False", "Number", "Custom"], name="action_type"),    # select a conditions
     ])
 
     if inputs["action_type"] == "Number":
-        number_types = list(number2attributes.keys())
+        number_types = list(number_type_attributes.keys())
         inputs_types = input_group('Select a type:', [
-            select('Number type', options=number_types, name='type', onchange=lambda c: input_update('attributes', options=number2attributes[c])),
-            select('Attributes', options=number2attributes[number_types[0]], name='attributes'),
+            select('Number type', options=number_types, name='type', onchange=lambda c: input_update('attributes', options=number_type_attributes[c])),
+            select('Attributes', options=number_type_attributes[number_types[0]], name='attributes'),
         ])
     
     if inputs["action_type"] == "Custom":
@@ -581,7 +572,7 @@ def delete_rule():
     global table_data
     
     # prompt which rule(s) to delete
-    index = input("Input rule number to delete:", validate=naming)
+    index = input("Input rule number to delete:", validate=naming_convention)
 
     if isinstance(int(index), int):
 
@@ -603,8 +594,8 @@ def delete_rule():
 def add_custom_type():
 
     inputs = input_group("Add a custom type", [
-        input("Enter a name for the custom type:", name="custom_name", validate=naming),
-        input("Input type attributes seperated by commas, (a,b,c):", name="custom_type", validate=naming)
+        input("Enter a name for the custom type:", name="custom_name", validate=naming_convention),
+        input("Input type attributes seperated by commas, (a,b,c):", name="custom_type", validate=naming_convention)
     ])
     custom_list = inputs["custom_type"].split(",")
     table_data['custom'][inputs["custom_name"]] = custom_list
@@ -643,7 +634,7 @@ def display_table():
     for i in range(len(table_data["data"])):
         for j in range(len(table_data["data"][i])):
             if table_array[i][j] == "True" or table_array[i][j] == "False" or table_array[i][j] == "*":
-                table_array[i][j] = put_button(table_array[i][j], onclick= functools.partial(toggle_boolean, i, j), color = get_color(table_array[i][j]))
+                table_array[i][j] = put_button(table_array[i][j], onclick= functools.partial(toggle_boolean, i, j), color = bool_to_color(table_array[i][j]))
             elif isinstance(table_array[i][j], int):
                 table_array[i][j] = put_button(table_array[i][j], onclick= functools.partial(toggle_integer, i, j), color='light')
             elif isinstance(table_array[i][j], str) and table_array[i][j][0] == "[":
@@ -856,11 +847,6 @@ def toggle_custom(row, column):
 
     save(table_data)
     display_table()
-
-def get_color(value):
-    if value == "True": return 'success'
-    elif value == "False": return 'danger'
-    else: return 'warning'
 
 def save(table_data):
     global opened_file
