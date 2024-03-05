@@ -38,7 +38,6 @@ def update_table_ui(table):
   put_button('Add a custom type', onclick=table.add_custom_type)
   put_button('Rename table', onclick=table.rename)
   put_button('Delete a rule', onclick=table.remove_rule)
-  put_button('Combine rules', onclick=table.combine_rules)
   put_button("Close Table", onclick=table.callback)
   put_button("Optimize Table", onclick=table.identify_warnings)
   return
