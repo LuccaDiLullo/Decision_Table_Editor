@@ -536,6 +536,9 @@ class Table:
     if isinstance(int(index), int):
       if int(index) > self.data["num_rules"]: 
         return "rule number {} does not exist".format(int(index))
+
+      if int(index) <= 0:
+        return "Invalid index"
       
       del self.data["headers"][-1]
       row = 0
@@ -557,6 +560,15 @@ class Table:
 
       if int(index2) > self.data["num_rules"]: 
         return "rule number {} does not exist".format(int(index2))
+
+      if int(index1) == int(index2):
+        return "Can't combine a rule with itself"
+
+      if int(index1) <= 0:
+        return "Invalid index"
+
+      if int(index2) <= 0:
+        return "Invalid index"
 
       for sublist in self.data["values"]:
 
