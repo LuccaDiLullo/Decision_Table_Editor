@@ -18,7 +18,7 @@ Description:
 import functools
 import json
 import ui
-from utils import naming_convention, number_type_attributes
+from utils import naming_convention, is_range_contained, number_type_attributes
 from pywebio.input import input, select, input_group, input_update, FLOAT
 from pywebio.output import put_button, put_text, popup, close_popup
 
@@ -529,9 +529,12 @@ class Table:
         
       self.update()
   
-  def remove_rule(self):    
-    # prompt which rule(s) to delete
-    index = input("Input rule number to delete:", validate=naming_convention)
+  def remove_rule(self, manual=True, ruleID=None):
+    if manual or ruleID == None: 
+      # prompt which rule(s) to delete
+      index = input("Input rule number to delete:", validate=naming_convention)
+    else:
+      index = ruleID
 
     if isinstance(int(index), int):
       if int(index) > self.data["num_rules"]: 
@@ -596,7 +599,8 @@ class Table:
 
   def identify_warnings(self):
     # Check for unused conditions
-    warnings = []
+    warnings_unused = []
+    warnings_redundant = []
     unused_conditions_warnings = []
     if self.data["conditions"] != [] and self.data["num_rules"] != 0:
       row = 1
@@ -611,7 +615,7 @@ class Table:
   
         if flag: 
           unused_conditions_warnings.append(row)
-          warnings.append(c_name)
+          warnings_unused.append(c_name)
         row += 1
 
     # Check for unused actions
@@ -629,25 +633,88 @@ class Table:
             
         if flag: 
           unused_actions_warnings.append(row)
-          warnings.append(a_name)
+          warnings_unused.append(a_name)
         row += 1
+    
+    # Check for redundant rules
+    redundant_rules = []
+    flags = [0] * self.data["num_rules"]
+    if self.data["conditions"] != [] and self.data["actions"] != []:
+      if self.data["num_rules"] != 0:
+        for rule_1 in range(self.data["num_rules"]):
+          for rule_2 in range(rule_1+1, self.data["num_rules"]):
+            redundant = True
+            hasRange = False
+            r1_contained = False
+            r2_contained = False
+            row = self.data["num_conditions"] + 2
+            for _ in self.data["actions"]:
+              r1_value = self.data['values'][row][rule_1+2]
+              r2_value = self.data['values'][row][rule_2+2]
+              row += 1
+              if r1_value != r2_value:
+                redundant = False
+                break
+            if not redundant: break
+            row = 1
+            for condition in self.data["conditions"]:
+              cond_type = condition[1]
+              r1_value = self.data['values'][row][rule_1+2]
+              r2_value = self.data['values'][row][rule_2+2]
+              row += 1
+              if cond_type == "Inclusive" or cond_type == "Exclusive":
+                hasRange = True
+                if r1_value != r2_value:
+                  if is_range_contained(r2_value, r1_value):
+                    r2_contained = True
+                  elif is_range_contained(r1_value, r2_value):
+                    r1_contained = True
+                  else:
+                    redundant = False
+                    break
+              else:
+                if r1_value != r2_value:
+                  redundant = False
+                  break      
+
+            if r2_contained and not r1_contained:
+              redundant_rule = rule_2
+            elif r1_contained and not r2_contained:
+              redundant_rule = rule_1
+            else:
+              redundant_rule = rule_2
+              if hasRange: redundant = False
+
+            if redundant and flags[redundant_rule]==0:
+              flags[redundant_rule] = 1
+              redundant_rules.append(redundant_rule+1)
+              rule_str = f"Rule {redundant_rule+1}"
+              warnings_redundant.append(rule_str)
+
     
     # pop up
     warnings_text = ""
     warning_num = 1
-    for warning in warnings:
+    for warning in warnings_unused:
       warnings_text += "Warning " + str(warning_num) + ": '" + warning + "' is unsused\n" 
       warning_num += 1
+
+    for warning in warnings_redundant:
+      warnings_text += "Warning " + str(warning_num) + ": '" + warning + "' is redundant\n" 
+      warning_num += 1
     
-    if warnings != []:
+    if warnings_unused != [] or warnings_redundant != []:
       popup("Identified Warnings", [
         put_text(warnings_text),
-        put_button("Fix warnings", functools.partial(self.optimize_table, unused_conditions_warnings, unused_actions_warnings))
+        put_button("Fix warnings", functools.partial(self.optimize_table, 
+                                                     unused_conditions_warnings, 
+                                                     unused_actions_warnings,
+                                                     redundant_rules))
       ])
     else:
       popup("No warnings detected, the table is fully optimized!")
 
-  def optimize_table(self, unused_conditions_list, unused_actions_list):
+  def optimize_table(self, unused_conditions_list, unused_actions_list, redundant_rules_list):
     unused_actions_list.reverse()
     unused_conditions_list.reverse()
     
@@ -655,6 +722,8 @@ class Table:
       self.remove_action(warning)
     for warning in unused_conditions_list:
       self.remove_condition(warning)
+    for rule in redundant_rules_list:
+      self.remove_rule(manual=False, ruleID=rule)
 
     self.update()
     put_text("optimization complete")
