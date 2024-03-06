@@ -19,7 +19,7 @@ import functools
 import json
 import ui
 from utils import naming_convention, is_range_contained, number_type_attributes
-from pywebio.input import input, select, input_group, input_update, FLOAT
+from pywebio.input import input, select, input_group, input_update, checkbox, radio, FLOAT
 from pywebio.output import put_button, put_text, popup, close_popup
 
 class Table:
@@ -532,7 +532,46 @@ class Table:
   def remove_rule(self, manual=True, ruleID=None):
     if manual or ruleID == None: 
       # prompt which rule(s) to delete
-      index = input("Input rule number to delete:", validate=naming_convention)
+      inputs = input_group("Add Condition", [
+        checkbox("", name="incomplete", options=['Delete all incomplete rules']),
+        input("Input rule number to delete:", name="rule_index"),
+      ])
+      
+      index = inputs["rule_index"]
+
+      # Check for incomplete rules
+      incomplete_rules = []
+      if inputs["incomplete"]: 
+        for rule in range(0,self.data['num_rules']):
+          row_index = 0
+          for row in self.data['values']:
+            # if cell equals default, it is incomplete?
+            if self.data['values'][row_index][0] != 'Conditions' and self.data['values'][row_index][0] != 'Actions':
+              cell_value = self.data['values'][row_index][rule+2]
+              cell_name = self.data['values'][row_index][1]
+              cell_type = ''
+              for condition in self.data['conditions']:
+                if condition[0] == cell_name:
+                  cell_type = condition[1]
+              for action in self.data["actions"]:
+                if action[0] == cell_name:
+                  cell_type = action[1]
+
+              if (cell_type == "True/False" and cell_value == 'False') or (cell_type == "Integer" and cell_value == 0) or (cell_type == "Inclusive" and cell_value == '[0,0]') or (cell_type == "Exclusive" and cell_value == ']0,0[') or (cell_type == "1" and cell_value == '0.0') or (cell_type == "2" and cell_value == '0.00') or (cell_type == "3" and cell_value == '0.000'):
+                incomplete_rules.append(rule+1)
+            
+            row_index += 1
+        
+        # Delete incomplete rules
+        if incomplete_rules != []:
+          incomplete_rules.reverse()
+          for i in incomplete_rules:
+            self.remove_rule(manual=False, ruleID=i)
+        else:
+          put_text("All rules are complete")
+        
+        return 0
+
     else:
       index = ruleID
 
@@ -552,6 +591,7 @@ class Table:
       self.data["num_rules"] -= 1
 
     self.update()
+    return 0
 
   def combine_rules(self):
     index1 = input("Input first rule number to combine:", validate=naming_convention)
