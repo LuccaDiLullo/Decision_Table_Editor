@@ -536,11 +536,60 @@ class Table:
     if isinstance(int(index), int):
       if int(index) > self.data["num_rules"]: 
         return "rule number {} does not exist".format(int(index))
+
+      if int(index) <= 0:
+        return "Invalid index"
       
       del self.data["headers"][-1]
       row = 0
       for _ in self.data['values']:
         del self.data['values'][row][int(index)+1]
+        row += 1
+
+      self.data["num_rules"] -= 1
+
+    self.update()
+
+  def combine_rules(self):
+    index1 = input("Input first rule number to combine:", validate=naming_convention)
+    index2 = input("Input second rule number to combine:", validate=naming_convention)
+
+    if isinstance(int(index1), int) and isinstance(int(index2), int):
+      if int(index1) > self.data["num_rules"]: 
+        return "rule number {} does not exist".format(int(index1))
+
+      if int(index2) > self.data["num_rules"]: 
+        return "rule number {} does not exist".format(int(index2))
+
+      if int(index1) == int(index2):
+        return "Can't combine a rule with itself"
+
+      if int(index1) <= 0:
+        return "Invalid index"
+
+      if int(index2) <= 0:
+        return "Invalid index"
+
+      for sublist in self.data["values"]:
+
+        index1 = int(index1)
+        index2 = int(index2)
+
+        if sublist[1+index1] == "False" or sublist[1+index1] == "True" or sublist[1+index1] == "*":
+          if sublist[1+index1] == "*":
+            sublist[1+index1] = sublist[1+index2]
+          if sublist[1+index1] == "False":
+            sublist[1+index1] = "False"
+          if sublist[1+index1] == "True":
+            if sublist[1+index2] == "True" or sublist[1+index2] == "*":
+              sublist[1+index1] = "True"
+            else:
+               sublist[1+index1] = "False"
+
+      del self.data["headers"][-1]
+      row = 0
+      for _ in self.data['values']:
+        del self.data['values'][row][int(index2)+1]
         row += 1
 
       self.data["num_rules"] -= 1
