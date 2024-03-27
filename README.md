@@ -40,7 +40,6 @@ Before you start, make sure you have:
     ```
 
 ### Tools and Their Purpose
-- **Behave**: A tool for writing tests in the Gherkin language to ensure functionality aligns with intended behavior. [Learn more about Behave](https://behave.readthedocs.io/en/stable/).
 - **PyWebIO**: Used for building web applications with Python. [Learn more about PyWebIO](https://pywebio.readthedocs.io/en/latest/).
 
 ### Setting up Virtual Environment
