@@ -1,4 +1,4 @@
-('/Users/luccadilullo/Desktop/Decision_Table_Editor/src/build/Main/PYZ-00.pyz',
+('/Users/luccadilullo/Desktop/Decision_Table_Editor/src/build/main/PYZ-00.pyz',
  [('PIL',
    '/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/PIL/__init__.py',
    'PYMODULE'),
