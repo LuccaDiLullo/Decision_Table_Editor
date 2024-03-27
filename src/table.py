@@ -5,7 +5,7 @@ Authors:
   - Justin Randisi
   - Lucca DiLullo
   - Yazan Saleh
-Date: February 23, 2024
+Date: March 26, 2024
 
 Description:
   The table.py file defines a Table class that facilitates the creation and 
