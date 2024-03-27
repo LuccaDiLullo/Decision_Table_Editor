@@ -14,7 +14,7 @@ Description:
   table. Also for saving, renaming, and optimizing the table.
 
 """
-
+# Required libraries and modules
 import functools
 import json
 import ui
@@ -24,8 +24,11 @@ from pywebio.output import put_button, put_text, popup, close_popup
 
 class Table:
   def __init__(self, callback, file=None):
-    self.callback = callback
+    # Callback function to execute upon certain actions
+    self.callback = callback 
+    # File attribute for saving the table, if provided
     self.file = file
+     # The data attribute stores all information related to the table, including its name, conditions, actions, and rules
     self.data = {
       "table_name": "My Decision Table",
       "num_conditions": 0,
@@ -39,13 +42,16 @@ class Table:
     }
 
   def update(self):
+    # Save the current state of the table and then display it
     self.save()
     self.display()
 
   def display(self):
+    # Display the table using UI methods defined in ui.py
     ui.update_table_ui(self)
   
   def save(self):
+    # Save the current state of the table to a JSON file
     json_object = json.dumps(self.data, indent=4)
     if (self.file == None):
       with open(self.data["table_name"]+".json", "w") as outfile:
@@ -55,6 +61,7 @@ class Table:
         outfile.write(json_object)
   
   def rename(self):
+    # Rename the decision table based on user input
     new_name = input_group("Rename decision table", [
         input("Enter a new name for the table", name="table_name", validate=naming_convention),
     ])
@@ -121,26 +128,30 @@ class Table:
     self.update()
   
   def modify_condition(self, row, column):    
+    # Identify the current condition name based on the selected table cell
     cur_name = self.data['values'][row][column]
     index = 0
 
+    # Find the index of the current condition within the conditions list
     for condition in self.data['conditions']:
       if condition[0] == cur_name: 
         index = self.data['conditions'].index(condition)
         break
     
+    # Prompt the user to decide whether they want to edit the name and/or the type of the condition
     inputs = input_group("Modify Condition", [
       select("Would you like to edit the name?", options=["Yes", "No"], name="name", validate=naming_convention),
       select("Would you like to edit the type?", options=["Yes", "No"], name="type", validate=naming_convention)
     ])
 
-    # EDIT BOTH
+    # If the user decides to edit both the name and the type of the condition
     if inputs["name"] == "Yes" and inputs["type"] == "Yes": 
       new_vars = input_group("Add Condition", [
         input("Enter a new name for the condition", name="condition_name", validate=naming_convention),
         select("Select a new type", options=["True/False", "Number", "Custom"], name="condition_type"),    # select a conditions
       ])
 
+      # Handle modifications for a Number type condition
       if new_vars["condition_type"] == "Number":
         number_types = list(number_type_attributes.keys())
         num_inputs_types = input_group('Select a type:', [
@@ -148,6 +159,7 @@ class Table:
           select('Attributes', options=number_type_attributes[number_types[0]], name='attributes'),
         ])
 
+      # Handle modifications for a Custom type condition
       if new_vars["condition_type"] == "Custom":
         if self.data['custom'] == {}:
           put_text("Create a custom type first")
@@ -157,16 +169,18 @@ class Table:
               select('Custom type', options=custom_types, name='type'),
           ])
 
+      # Update the condition's name in the table values and conditions list
       self.data['values'][row][column] = new_vars["condition_name"]
       self.data["conditions"][index][0] = new_vars["condition_name"]
       
-      # Update rules
+      # Update the condition's type and default values in rules if any rules exist
       if self.data["num_rules"] != 0:
         for i in range(2, self.data["num_rules"]+2):
           if new_vars["condition_type"] == "True/False":
             self.data["conditions"][index][1] = new_vars["condition_type"]
             self.data['values'][row][i] = "False"
           elif new_vars["condition_type"] == "Number":
+            # Update based on the selected number type and attributes
             match num_inputs_types["type"]:
               case "Integer": 
                 self.data["conditions"][index][1] = num_inputs_types["attributes"]
@@ -190,10 +204,11 @@ class Table:
                       self.data["conditions"][index][1] = num_inputs_types["attributes"]
                       self.data['values'][row][i] = "0.000"
           elif new_vars["condition_type"] == "Custom":
+              # Update based on the selected custom type
               self.data["conditions"][index][1] = cus_inputs_types["type"]
               self.data['values'][row][i] = self.data['custom'][cus_inputs_types["type"]][0]
         
-    # EDIT NAME ONLY
+    # If the user decides to edit only the name of the condition
     elif inputs["name"] == "Yes" and inputs["type"] == "No":
       new_name = input_group("Modify this condition", [
         input("Enter a new name for the condition", name="condition_name", validate=naming_convention),
@@ -201,12 +216,14 @@ class Table:
       self.data["conditions"][index][0] = new_name["condition_name"]
       self.data['values'][row][column] = new_name["condition_name"]
     
-    # EDIT TYPE ONLY
+    # This branch allows modifying only the type of a condition, keeping the name unchanged.
     elif inputs["type"] == "Yes" and inputs["name"] == "No":
+      # Gather new type information from the user.
       new_type = input_group("Modify this confition", [
         select("Select a new type", options=["True/False", "Number", "Custom"], name="condition_type"),    # select a conditions
       ])
 
+      # If the new type is Number, prompt for further details regarding number type and attributes.
       if new_type["condition_type"] == "Number":
         number_types = list(number_type_attributes.keys())
         num_inputs_types = input_group('Select a type:', [
@@ -214,21 +231,26 @@ class Table:
           select('Attributes', options=number_type_attributes[number_types[0]], name='attributes'),
         ])
 
+      # If the new type is Custom, allow selection from predefined custom types, prompting to create one if none exist.
       if new_type["condition_type"] == "Custom":
         if self.data['custom'] == {}:
-          put_text("Create a custom type first")
+          # Notify user to create a custom type if none exists.
+          put_text("Create a custom type first") 
         else:
+          # Get custom types from the table's data.
           custom_types = list(self.data['custom'].keys())
           cus_inputs_types = input_group('Select a type:', [
             select('Custom type', options=custom_types, name='type'),
           ])
 
-      # Update rules
+      # Update rules based on the new type, applying changes to all relevant places in the table's data.
       if self.data["num_rules"] != 0:
         for i in range(2, self.data["num_rules"]+2):
+          # Apply updates for True/False conditions.
           if new_type["condition_type"] == "True/False":
             self.data["conditions"][index][1] = new_type["condition_type"]
             self.data['values'][row][i] = "False"
+          # Apply updates based on the selected number type and its attributes.
           elif new_type["condition_type"] == "Number":
             match num_inputs_types["type"]:
               case "Integer": 
@@ -252,10 +274,12 @@ class Table:
                   case "3": 
                     self.data["conditions"][index][1] = num_inputs_types["attributes"]
                     self.data['values'][row][i] = "0.000"
+          # Apply updates for Custom conditions.
           elif new_type["condition_type"] == "Custom":
               self.data["conditions"][index][1] = cus_inputs_types["type"]
               self.data['values'][row][i] = self.data['custom'][cus_inputs_types["type"]][0]
     
+    # Ensure the table UI is updated to reflect these changes.
     self.update()
 
   def remove_condition(self, row_index):
@@ -327,26 +351,31 @@ class Table:
     self.update()
 
   def modify_action(self, row, column):
+    # Identify the current name of the action to be modified
     cur_name = self.data['values'][row][column]
     index = 0
 
+    # Find the action's index within the actions list
     for action in self.data['actions']:
       if action[0] == cur_name: 
         index = self.data['actions'].index(action)
         break
     
+    # Prompt the user to decide whether to edit the name and/or type of the action
     inputs = input_group("Modify Action", [
       select("Would you like to edit the name?", options=["Yes", "No"], name="name", validate=naming_convention),
       select("Would you like to edit the type?", options=["Yes", "No"], name="type", validate=naming_convention)
     ])
 
-    # EDIT BOTH
+    # If the user chooses to edit both the name and type
     if inputs["name"] == "Yes" and inputs["type"] == "Yes": 
+      # Collect new name and type for the action
       new_vars = input_group("Add Action", [
         input("Enter a new name for the action", name="action_name", validate=naming_convention),
         select("Select a new type", options=["True/False", "Number", "Custom"], name="action_type"),    # select an action
       ])
 
+      # Handle the case where the new type is "Number"
       if new_vars["action_type"] == "Number":
         number_types = list(number_type_attributes.keys())
         num_inputs_types = input_group('Select a type:', [
@@ -354,6 +383,7 @@ class Table:
           select('Attributes', options=number_type_attributes[number_types[0]], name='attributes'),
         ])
 
+      # Handle the case where the new type is "Custom"
       if new_vars["action_type"] == "Custom":
         if self.data['custom'] == {}:
           put_text("Create a custom type first")
@@ -363,10 +393,11 @@ class Table:
             select('Custom type', options=custom_types, name='type'),
           ])
 
+      # Update the action name and type in the data structure
       self.data['values'][row][column] = new_vars["action_name"]
       self.data["actions"][index][0] = new_vars["action_name"]
       
-      # Update rules
+      # Update corresponding rules with the new action details
       if self.data["num_rules"] != 0:
         for i in range(self.data["num_rules"]):
           if new_vars["action_type"] == "True/False":
@@ -399,15 +430,16 @@ class Table:
               self.data["actions"][index][1] = cus_inputs_types["type"]
               self.data['values'][row][i+2] = self.data['custom'][cus_inputs_types["type"]][0]
         
-    # EDIT NAME ONLY
+    # If the user chooses to only edit the name of the action
     elif inputs["name"] == "Yes" and inputs["type"] == "No":
       new_name = input_group("Modify this action", [
         input("Enter a new name for the action", name="action_name", validate=naming_convention),
       ])
+      # Update the action name in the data structure
       self.data["actions"][index][0] = new_name["action_name"]
       self.data['values'][row][column] = new_name["action_name"]
     
-    # EDIT TYPE ONLY
+    # If the user chooses to only edit the type of the action
     elif inputs["type"] == "Yes" and inputs["name"] == "No":
       new_type = input_group("Modify this action", [
         select("Select a new type", options=["True/False", "Number", "Custom"], name="action_type"),    # select an action
@@ -429,7 +461,7 @@ class Table:
             select('Custom type', options=custom_types, name='type'),
           ])
 
-      # Update rules
+      # Update corresponding rules with the new action details
       if self.data["num_rules"] != 0:
         for i in range(self.data["num_rules"]):
           if new_type["action_type"] == "True/False":
@@ -594,9 +626,11 @@ class Table:
     return 0
 
   def combine_rules(self):
+    # Prompt the user to input two rule numbers that they wish to combine.
     index1 = input("Input first rule number to combine:", validate=naming_convention)
     index2 = input("Input second rule number to combine:", validate=naming_convention)
 
+    # Validate the rule numbers to ensure they are within the valid range and not identical.
     if isinstance(int(index1), int) and isinstance(int(index2), int):
       if int(index1) > self.data["num_rules"]: 
         return "rule number {} does not exist".format(int(index1))
@@ -613,11 +647,12 @@ class Table:
       if int(index2) <= 0:
         return "Invalid index"
 
+      # Iterate through the values in the decision table to combine the specified rules.
       for sublist in self.data["values"]:
 
         index1 = int(index1)
         index2 = int(index2)
-
+        # Logic to combine the rules based on their conditions and actions.
         if sublist[1+index1] == "False" or sublist[1+index1] == "True" or sublist[1+index1] == "*":
           if sublist[1+index1] == "*":
             sublist[1+index1] = sublist[1+index2]
@@ -629,48 +664,60 @@ class Table:
             else:
                sublist[1+index1] = "False"
 
+      # Remove the second rule from the headers to reflect its combination into the first rule.
       del self.data["headers"][-1]
       row = 0
+      # Remove the second rule's column from each row in the values list.
       for _ in self.data['values']:
         del self.data['values'][row][int(index2)+1]
         row += 1
 
+      # Decrement the number of rules to reflect the combination.
       self.data["num_rules"] -= 1
 
     self.update()
 
   def add_custom_type(self):
+    # Prompt the user to define a new custom type by specifying a name and its attributes.
     inputs = input_group("Add a custom type", [
       input("Enter a name for the custom type:", name="custom_name", validate=naming_convention),
       input("Input type attributes seperated by commas, (a,b,c):", name="custom_type", validate=naming_convention)
     ])
+    # Split the provided attributes string into a list by commas, allowing for multiple attributes.
     custom_list = inputs["custom_type"].split(",")
+    # Add the new custom type and its attributes to the 'custom' dictionary within the table's data structure.
     self.data['custom'][inputs["custom_name"]] = custom_list
 
     self.update()
 
   def identify_warnings(self):
-    # Check for unused conditions
+    # Initialize lists to keep track of unused and redundant items.
     warnings_unused = []
     warnings_redundant = []
     unused_conditions_warnings = []
+
+    # Check each condition to see if it's used in any rule. If not, mark it as unused.
     if self.data["conditions"] != [] and self.data["num_rules"] != 0:
+      # Start from the first condition's row
       row = 1
       for condition in self.data["conditions"]:
         c_name = condition[0]
         c_value = self.data['values'][row][2]
 
+        # Flag to mark the condition as unused initially
         flag = True
         for i in range(self.data["num_rules"]):
+          # If any rule uses the condition differently, it's considered used.
           if self.data['values'][row][i+2] != c_value:
             flag = False
   
+        # If the condition is unused, add it to the warnings list.
         if flag: 
           unused_conditions_warnings.append(row)
           warnings_unused.append(c_name)
         row += 1
 
-    # Check for unused actions
+    # Similar check for actions to identify unused actions.
     unused_actions_warnings = []
     if self.data["actions"] != [] and self.data["num_rules"] != 0:
       row = self.data["num_conditions"] + 2
@@ -678,6 +725,7 @@ class Table:
         a_name = action[0]
         a_value = self.data['values'][row][2]
 
+        # Flag for unused actions
         flag = True
         for i in range(self.data["num_rules"]):
           if self.data['values'][row][i+2] != a_value:
@@ -688,8 +736,9 @@ class Table:
           warnings_unused.append(a_name)
         row += 1
     
-    # Check for redundant rules
+    # Check for redundant rules, i.e., rules that could be combined without loss of functionality.
     redundant_rules = []
+    # Flags to avoid double counting
     flags = [0] * self.data["num_rules"]
     if self.data["conditions"] != [] and self.data["actions"] != []:
       if self.data["num_rules"] != 0:
@@ -699,6 +748,7 @@ class Table:
             hasRange = False
             r1_contained = False
             r2_contained = False
+            # Compare the actions of the two rules.
             row = self.data["num_conditions"] + 2
             for _ in self.data["actions"]:
               r1_value = self.data['values'][row][rule_1+2]
@@ -708,6 +758,7 @@ class Table:
                 redundant = False
                 break
             if not redundant: break
+            # Compare the conditions of the two rules.
             row = 1
             for condition in self.data["conditions"]:
               cond_type = condition[1]
@@ -737,6 +788,7 @@ class Table:
               redundant_rule = rule_2
               if hasRange: redundant = False
 
+            # Decide which rule is redundant based on containment.
             if redundant and flags[redundant_rule]==0:
               flags[redundant_rule] = 1
               redundant_rules.append(redundant_rule+1)
@@ -744,7 +796,7 @@ class Table:
               warnings_redundant.append(rule_str)
 
     
-    # pop up
+    # Display warnings for unused items and redundant rules.
     warnings_text = ""
     warning_num = 1
     for warning in warnings_unused:
@@ -755,6 +807,7 @@ class Table:
       warnings_text += "Warning " + str(warning_num) + ": '" + warning + "' is redundant\n" 
       warning_num += 1
     
+    # If there are any warnings, display them in a pop up
     if warnings_unused != [] or warnings_redundant != []:
       popup("Identified Warnings", [
         put_text(warnings_text),
@@ -764,20 +817,31 @@ class Table:
                                                      redundant_rules))
       ])
     else:
+      # Notify the user that no warnings were detected and the table is considered optimized.
       popup("No warnings detected, the table is fully optimized!")
 
   def optimize_table(self, unused_conditions_list, unused_actions_list, redundant_rules_list):
+    # Reverse the lists to ensure that removing items doesn't shift the indices of yet-to-be-processed items.
     unused_actions_list.reverse()
     unused_conditions_list.reverse()
     
+    # Remove unused actions. By iterating over the reversed list, we ensure that deleting one action
+    # doesn't affect the indices of the remaining actions to be deleted
     for warning in unused_actions_list:
       self.remove_action(warning)
+    
+    # Similarly, remove unused conditions. This step helps in cleaning up the decision table,
+    # making it more efficient and easier to manage.
     for warning in unused_conditions_list:
       self.remove_condition(warning)
+    
+    # Remove redundant rules identified in the decision table. This operation further optimizes
+    # the table by combining or eliminating rules that do not contribute to the decision-making process.
     for rule in redundant_rules_list:
       self.remove_rule(manual=False, ruleID=rule)
 
     self.update()
+    # Notify the user that the optimization process is complete and close the popup.
     put_text("optimization complete")
     close_popup()
 
@@ -793,31 +857,41 @@ class Table:
         
     self.update()
 
-  # Toggles the value in the table from where the user interaction came from for integers
+ 
   def toggle_integer(self, row, column):
+     # Toggles the value in the table from where the user interaction came from for integers
     updated_integer = input("Change the value", type=FLOAT)
     self.data['values'][row][column] = int(updated_integer)
     self.update()
 
-  # Toggles the value in the table from where the user interaction came from for range of values
+
   def toggle_range(self, row, column, bracket):
+    # This function allows for the editing of range values in the decision table.
+    # It prompts the user to input new start and end values for a specified range.
     updates = input_group('Update range values', [
       input("Change the first value of the range", type=FLOAT, name="updated_range_a"),
       input("Change the second value of the range", type=FLOAT, name="updated_range_b")
     ])
+    # Validate the input to ensure the start of the range is less than the end.
     if updates["updated_range_a"] > updates["updated_range_b"]:
       return "the second value must be greater than the first value"
+    # Depending on the type of bracket provided ('[' for inclusive, ']' for exclusive),
+    # format the range string accordingly.
     if bracket == "[":
+      # For inclusive ranges, both end values are included in the range.
       self.data['values'][row][column] = "["+str(int(updates["updated_range_a"]))+","+str(int(updates["updated_range_b"]))+"]"
     else: 
+      # For exclusive ranges, both end values are excluded from the range.
       self.data['values'][row][column] = "]"+str(int(updates["updated_range_a"]))+","+str(int(updates["updated_range_b"]))+"["
 
     self.update()
 
-  # Toggles the value in the table from where the user interaction came from for decimal values
+  
   def toggle_decimal(self, row, column):
+    # Identify the name of the condition or action to determine the type of decimal precision required.
     name = self.data['values'][row][1]
     decimal_num = "0"
+    # Look up the corresponding condition or action in the table data to find its decimal precision setting.
     for condition in self.data['conditions']:
       if condition[0] == name: 
         decimal_num = condition[1]
@@ -827,7 +901,10 @@ class Table:
         decimal_num = action[1]
         break
     
+    # Prompt the user to input a new value for the decimal, ensuring it's treated as a float for precision.
     updated_integer = input("Change the value", type=FLOAT)
+
+    # Update the value in the table based on the specified precision ('1', '2', or '3' decimals).
     match decimal_num:
       case "1": self.data['values'][row][column] = str("%.1f" % updated_integer)
       case "2": self.data['values'][row][column] = str("%.2f" % updated_integer)
@@ -836,8 +913,10 @@ class Table:
     self.update()
 
   def toggle_custom(self, row, column):
+    # Retrieve the name of the condition or action from the specified row.
     name = self.data['values'][row][1]
     attr = "hi"
+    # Search for the condition or action in the table's data to find its associated custom type attribute.
     for condition in self.data['conditions']:
       if condition[0] == name:
         attr = condition[1]
@@ -847,9 +926,14 @@ class Table:
         attr = action[1]
         break
     
+    # Retrieve the list of options for the custom type.
     var_list = self.data['custom'][attr]
     
+    # Prompt the user to select a new value for the custom attribute from the available options.
     updated_type = select("Select the value", options=var_list)    # select a conditions
+    
+    # Update the cell in the decision table with the newly selected custom value.
     self.data['values'][row][column] = updated_type
 
+    # Refresh the table UI to reflect the change.
     self.update()
